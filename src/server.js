@@ -7,6 +7,7 @@ const sequelize = require('./config/db');
 
 require('./config/passport');
 const userAuthRouter = require('./routers/userAuthRouter');
+const questionRouter = require('./routers/questionRouter');
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.json());
 app.use(userAuthRouter);
+app.use(questionRouter);
 
 const PORT = process.env.PORT;
 
