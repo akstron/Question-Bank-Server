@@ -1,8 +1,12 @@
 require('dotenv').config()
 const express = require('express');
-var session = require("express-session");
-var SequelizeStore = require("connect-session-sequelize")(session.Store);
+const session = require("express-session");
+const passport = require('passport');
+const SequelizeStore = require("connect-session-sequelize")(session.Store);
 const sequelize = require('./config/db');
+
+require('./config/passport');
+const userAuthRouter = require('./routers/userAuthRouter');
 
 const app = express();
 
@@ -26,6 +30,11 @@ const sessionOptions = {
 }
 
 app.use(session(sessionOptions));
+
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(express.json());
+app.use(userAuthRouter);
 
 const PORT = process.env.PORT;
 
