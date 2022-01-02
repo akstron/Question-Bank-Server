@@ -3,6 +3,7 @@
  */
 
 const Question = require('../models/Question');
+const Tag = require('../models/Tag');
 const {isValidQuestion, isValidUpdate} = require('../utils/question');
 
 Question.sync().then(() => {
@@ -106,6 +107,50 @@ module.exports.UpdateQuestion = async (req, res) => {
             message: "Question updated"
         });
     }
+    catch(e){
+        console.log(e);
+        return res.status(500).json({
+            status: false,
+            error: 'Something went wrong'
+        });
+    }
+}
+
+module.exports.GetQuestionDetails = async (req, res) => {
+    const { questionId } = req.body;
+
+    if(!questionId){
+        return res.status(400).json({
+            status: false,
+            error: 'Provide question id'
+        });
+    }
+
+    try{
+        const question = await Question.findByPk(questionId, {
+            attributes: [
+                'url', 'name', 'notes'
+            ],
+            include: [{
+                    model: Tag,
+                    attributes: ['name'],
+                    through: {
+                        /* 
+                            For removing junction array 
+                            https://sequelize.org/master/manual/eager-loading.html
+                        */
+                        attributes: []
+                    }
+                }
+            ]
+        });
+
+        return res.json({
+            status: true,
+            question
+        });
+    }
+
     catch(e){
         console.log(e);
         return res.status(500).json({
