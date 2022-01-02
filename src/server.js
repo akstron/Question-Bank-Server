@@ -6,6 +6,7 @@ const SequelizeStore = require("connect-session-sequelize")(session.Store);
 const sequelize = require('./config/db');
 
 require('./config/passport');
+require('./models/TagMap');
 const userAuthRouter = require('./routers/userAuthRouter');
 const questionRouter = require('./routers/questionRouter');
 

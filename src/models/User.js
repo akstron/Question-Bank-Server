@@ -35,4 +35,7 @@ User.register = async (email, password) => {
     return user.id;
 }
 
+User.sync().then(() => console.log('User sync successfull'))
+.catch(e => console.log(e));
+
 module.exports = User;

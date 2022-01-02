@@ -1,5 +1,5 @@
 
-const validQuestionParameters = ['url', 'name', 'notes'];
+const validQuestionParameters = ['url', 'name', 'notes', 'tags'];
 
 module.exports.isValidQuestion = (question) => {
     const keys = Object.keys(question);
