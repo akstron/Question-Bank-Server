@@ -66,7 +66,7 @@ module.exports.Login = (req, res, next) => {
 };
 
 module.exports.CheckLoggedIn =  (req, res) => {
-    console.log(req.session);
+    // console.log(req.session);
     res.send('Logged in');
 };
 

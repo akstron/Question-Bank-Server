@@ -2,21 +2,26 @@
  * Middlewares related to questions
  */
 
-const { createSchema } = require('../config/db');
 const Question = require('../models/Question');
-
-/**
- * TODO: Handle empty objects
- */
+const {isValidQuestion, isValidUpdate} = require('../utils/question');
 
 Question.sync().then(() => {
     console.log("Question sync successfull");
 }).catch((e) => console.log(e));
 
+
 module.exports.AddQuestion = async (req, res) => {
     try{
+        const {status, error} = isValidQuestion(req.body);
+
+        if(!status){
+            return res.status(400).json({
+                status,
+                error
+            });
+        }
+
         const question = await Question.addQuestion(req.user.id, req.body);
-        console.log('Question hai ye: ', question);
 
         return res.json({
             questionId: question.id,
@@ -58,7 +63,8 @@ module.exports.DeleteQuestion = async (req, res) => {
 
         await Question.destroy({
             where: {
-                id: questionId 
+                id: questionId, 
+                UserId: req.user.id
             }
         })
 
@@ -78,15 +84,20 @@ module.exports.DeleteQuestion = async (req, res) => {
 
 module.exports.UpdateQuestion = async (req, res) => {
     try{
-        /**
-         * TODO: CHECK VALID UPDATES
-         */
-
         const {questionId, updates} = req.body;
+        const {status, error} = isValidUpdate(updates);
+        
+        if(!status){
+            return res.status(400).json({
+                status, 
+                error
+            })
+        }
 
         await Question.update({...updates}, {
             where: {
-                id: questionId
+                id: questionId, 
+                UserId: req.user.id
             }
         });
 
