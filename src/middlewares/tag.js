@@ -9,45 +9,61 @@ const isValidUUID = (uuid) => {
     return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(uuid);
 }
 
+const checkQuestionValidiy = async (questionId, user) => {
+    if(!questionId){
+        return {
+            status: false,
+            error: 'Question id missing'
+        }
+    }
+
+    if(!isValidUUID(questionId)){
+        return {
+            status: false,
+            error: 'Invalid question id'
+        };
+    }
+
+    const question = await Question.findByPk(questionId);
+
+    if(!question){
+        return {
+            status: false,
+            error: 'Question not found!'
+        };
+    }
+
+    if(question.UserId !== user.id){
+        return {
+            status: false,
+            error: 'Question not found!!'
+        };
+    }
+
+    return {
+        status: true,
+        question
+    };
+}
+
 module.exports.AddQuestionTag = async (req, res) => {
     const { user } = req;
     const { questionId, tags } = req.body;
 
+    if(!tags){
+        return res.status(400).json({
+            status: false,
+            error: 'Tags missing'
+        });
+    }
+
     try{
-        if(!questionId){
+        const {status, question, error} = await checkQuestionValidiy(questionId, user);
+        
+        if(!status){
             return res.status(400).json({
-                status: false,
-                error: 'Question id missing'
-            });
-        }
-
-        if(!tags){
-            return res.status(400).json({
-                status: false,
-                error: 'Tags missing'
-            });
-        }
-
-        if(!isValidUUID(questionId)){
-            return res.status(400).json({
-                status: false,
-                error: 'Invalid question id'
-            });
-        }
-
-        const question = await Question.findByPk(questionId);
-
-        if(!question){
-            return res.status(400).json({
-                status: false,
-                error: 'Question not found!'
-            });
-        }
-
-        if(question.UserId !== user.id){
-            return res.status(400).json({
-                status: false,
-                error: 'Question not found!!'
+                status,
+                error
             });
         }
 
@@ -68,10 +84,41 @@ module.exports.AddQuestionTag = async (req, res) => {
     }
 }
 
+/**
+ * Delete tags with tag ids 
+ */
 module.exports.DeleteQuestionTag = async(req, res) => {
-    const { tags } = req.body;
+    const { tagIds } = req.body;
+
+    if(!tagIds){
+        return res.status(400).json({
+            status: false,
+            error: 'Tag ids missing'
+        });
+    }
+
+    try{
+        const {status, question, error} = await checkQuestionValidiy(questionId, user);
+        
+        if(!status){
+            return res.status(400).json({
+                status,
+                error
+            });
+        }
+
+    } catch(e){
+        console.log(e);
+        return res.status(500).json({
+            status: false,
+            error: "Something went wrong!"
+        });
+    }
 }
 
+/**
+ * Add tags with tag names
+ */
 module.exports.AddTag = async (req, res) => {
     const { tag } = req.body;
     
