@@ -1,5 +1,5 @@
 const sequelize = require('../config/db');
-const {DataTypes: types} = require("sequelize");
+const {DataTypes: types, QueryTypes} = require("sequelize");
 
 const Tag = sequelize.define('Tag', {
     id: {
@@ -35,6 +35,25 @@ Tag.addTag = async (tag) => {
     });
 
     return dbTag;
+}
+
+Tag.getTaggedQuestions = async (tags) => {
+    const questions = await sequelize.query('SELECT "q.id", "q.url", "q.name", "q.notes"\
+ FROM "TagMaps" tm, "Tags" t, "Questions" q\
+ WHERE "tm.QuestionId" = "t.id"\
+ AND ("t.name" IN (:tags)\
+ AND "tm.TagId" = "q.id"', {
+        replacements:  {tags},
+        type: QueryTypes.SELECT
+    });
+
+    // const questions = await sequelize.query('SELECT * FROM "Tags"', {
+    //     replacements: ["Tags"],
+    //     type: QueryTypes.SELECT
+    // });
+
+    // console.log(questions);
+    return questions;
 }
 
 Tag.sync().then(() => {

@@ -136,7 +136,7 @@ module.exports.GetQuestionDetails = async (req, res) => {
                     attributes: ['name'],
                     through: {
                         /* 
-                            For removing junction array 
+                            For removing junction object
                             https://sequelize.org/master/manual/eager-loading.html
                         */
                         attributes: []
@@ -145,15 +145,47 @@ module.exports.GetQuestionDetails = async (req, res) => {
             ]
         });
 
+        const questionObj = {
+            url: question.url,
+            name: question.name, 
+            notes: question.notes,
+            tags: []
+        };
+
+        question.Tags.forEach((tag) => {
+            questionObj.tags.push(tag.name);
+        });
+
+
         return res.json({
             status: true,
-            question
+            questionObj
         });
     }
 
     catch(e){
         console.log(e);
         return res.status(500).json({
+            status: false,
+            error: 'Something went wrong'
+        });
+    }
+}
+
+module.exports.GetTaggedQuestions = async (req, res) => {
+    const { tags } = req.body;
+    try{
+        const questions = await Tag.getTaggedQuestions(tags);
+
+        console.log(questions);
+
+        return res.json({
+            status: true,
+        });
+    }
+    catch(e){
+        console.log(e);
+        res.status(500).json({
             status: false,
             error: 'Something went wrong'
         });
