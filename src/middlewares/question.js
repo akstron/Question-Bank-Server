@@ -159,7 +159,7 @@ module.exports.GetQuestionDetails = async (req, res) => {
 
         return res.json({
             status: true,
-            questionObj
+            question: questionObj
         });
     }
 
@@ -181,6 +181,7 @@ module.exports.GetTaggedQuestions = async (req, res) => {
 
         return res.json({
             status: true,
+            questions
         });
     }
     catch(e){

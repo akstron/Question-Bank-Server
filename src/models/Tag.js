@@ -37,22 +37,22 @@ Tag.addTag = async (tag) => {
     return dbTag;
 }
 
-Tag.getTaggedQuestions = async (tags) => {
-    const questions = await sequelize.query('SELECT "q.id", "q.url", "q.name", "q.notes"\
- FROM "TagMaps" tm, "Tags" t, "Questions" q\
- WHERE "tm.QuestionId" = "t.id"\
- AND ("t.name" IN (:tags)\
- AND "tm.TagId" = "q.id"', {
-        replacements:  {tags},
+/**
+ * TODO: Change it to only include ids
+ */
+
+Tag.getTaggedQuestions = async (tags = []) => {
+    if(tags.length === 0) return [];
+
+    const questions = await sequelize.query(`SELECT DISTINCT q.id, q.url, q.name, q.notes\
+ FROM "TagMaps" AS tm, "Tags" AS t, "Questions" AS q\
+ WHERE tm."QuestionId" = q.id\
+ AND t.name IN (:tags)\
+ AND tm."TagId" = t.id;`, {
+        replacements:  {tags: tags},
         type: QueryTypes.SELECT
     });
-
-    // const questions = await sequelize.query('SELECT * FROM "Tags"', {
-    //     replacements: ["Tags"],
-    //     type: QueryTypes.SELECT
-    // });
-
-    // console.log(questions);
+  
     return questions;
 }
 
