@@ -5,7 +5,7 @@
 const router = require('express').Router();
 const { IsAuthenticated } = require('../config/auth');
 const { AddQuestion, GetQuestions, DeleteQuestion, UpdateQuestion, GetQuestionDetails, GetTaggedQuestions } = require('../middlewares/question');
-const { AddTag } = require('../middlewares/tag');
+const { AddTag, AddQuestionTag, DeleteQuestionTag } = require('../middlewares/tag');
 
 router.post('/addQuestion', IsAuthenticated, AddQuestion);
 router.get('/getQuestions', IsAuthenticated, GetQuestions);
@@ -14,5 +14,8 @@ router.put('/updateQuestion', IsAuthenticated, UpdateQuestion);
 router.post('/addTag', IsAuthenticated, AddTag);
 router.get('/getQuestionDetails', IsAuthenticated, GetQuestionDetails);
 router.get('/getTaggedQuestions', IsAuthenticated, GetTaggedQuestions);
+router.put('/addQuestionTag', IsAuthenticated, AddQuestionTag);
+router.delete('/deleteQuestionTag', IsAuthenticated, DeleteQuestionTag);
+
 
 module.exports = router;

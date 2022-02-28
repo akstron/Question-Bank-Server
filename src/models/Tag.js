@@ -16,6 +16,9 @@ const Tag = sequelize.define('Tag', {
     }
 });
 
+/**
+ * Add tag to database using this method
+ */
 Tag.addTag = async (tag) => {
     const alreadyTag = await Tag.findOne({
         where: {
@@ -35,6 +38,41 @@ Tag.addTag = async (tag) => {
     });
 
     return dbTag;
+}
+
+/**
+ * Get tag ids from tag names. 
+ * WARNING: It creates tags when tag not found!!!
+ */
+
+Tag.getTagIds = async (tags) => {
+    if(!tags) return [];
+
+    const tagIds = [];
+    for(var i =0 ; i < tags.length; i++){
+        const tagId = await Tag.findOne({
+            attributes: [
+                'id'
+            ],
+
+            where: {
+                name: tags[i]
+            }
+        });
+
+        if(tagId) tagIds.push(tagId.id);
+        else{
+            try{
+                const currentTag = await Tag.addTag(tags[i]);
+                tagIds.push(currentTag.id);
+            }
+            catch(e){
+                console.log(e);
+            }
+        }
+    }
+
+    return tagIds;
 }
 
 /**

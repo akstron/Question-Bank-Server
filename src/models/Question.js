@@ -41,31 +41,7 @@ Question.addQuestion = async (UserId, questionObj) => {
     });
 
     const tags = questionObj.tags;
-    const tagIds = [];
-    if(tags){
-        for(var i =0 ; i < tags.length; i++){
-            const tagId = await Tag.findOne({
-                attributes: [
-                    'id'
-                ],
-
-                where: {
-                    name: tags[i]
-                }
-            });
-
-            if(tagId) tagIds.push(tagId.id);
-            else{
-                try{
-                    const currentTag = await Tag.addTag(tags[i]);
-                    tagIds.push(currentTag.id);
-                }
-                catch(e){
-                    console.log(e);
-                }
-            }
-        }
-    }
+    const tagIds = await Tag.getTagIds(tags);
 
     await question.addTags(tagIds);
 
