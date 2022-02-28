@@ -3,48 +3,7 @@
  */
 
 const Tag = require('../models/Tag');
-const Question = require('../models/Question');
-
-const isValidUUID = (uuid) => {
-    return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(uuid);
-}
-
-const checkQuestionValidiy = async (questionId, user) => {
-    if(!questionId){
-        return {
-            status: false,
-            error: 'Question id missing'
-        }
-    }
-
-    if(!isValidUUID(questionId)){
-        return {
-            status: false,
-            error: 'Invalid question id'
-        };
-    }
-
-    const question = await Question.findByPk(questionId);
-
-    if(!question){
-        return {
-            status: false,
-            error: 'Question not found!'
-        };
-    }
-
-    if(question.UserId !== user.id){
-        return {
-            status: false,
-            error: 'Question not found!!'
-        };
-    }
-
-    return {
-        status: true,
-        question
-    };
-}
+const {getQuestionFromDB} = require('../utils/question');
 
 module.exports.AddQuestionTag = async (req, res) => {
     const { user } = req;
@@ -58,15 +17,7 @@ module.exports.AddQuestionTag = async (req, res) => {
     }
 
     try{
-        const {status, question, error} = await checkQuestionValidiy(questionId, user);
-        
-        if(!status){
-            return res.status(400).json({
-                status,
-                error
-            });
-        }
-
+        const question = await getQuestionFromDB(questionId, user);
         const tagIds = await Tag.getTagIds(tags);
         await question.addTags(tagIds);
 
@@ -77,10 +28,17 @@ module.exports.AddQuestionTag = async (req, res) => {
 
     } catch(e){
         console.log(e);
-        return res.status(500).json({
+        if(!e.error){
+            return res.status(500).json({
+                status: false,
+                error: 'Something went wrong'
+            })
+        }
+
+        return res.status(400).json({
             status: false,
-            error: "Something went wrong"
-        });
+            error: e.error
+        })
     }
 }
 
@@ -88,7 +46,8 @@ module.exports.AddQuestionTag = async (req, res) => {
  * Delete tags with tag ids 
  */
 module.exports.DeleteQuestionTag = async(req, res) => {
-    const { tagIds } = req.body;
+    const { questionId, tagIds } = req.body;
+    const { user } = req;
 
     if(!tagIds){
         return res.status(400).json({
@@ -98,21 +57,28 @@ module.exports.DeleteQuestionTag = async(req, res) => {
     }
 
     try{
-        const {status, question, error} = await checkQuestionValidiy(questionId, user);
-        
-        if(!status){
-            return res.status(400).json({
-                status,
-                error
-            });
-        }
+        const question = await getQuestionFromDB(questionId, user);
+        await question.removeTags(tagIds);
+
+        return res.json({
+            status: true,
+            message: "Tags deleted successfully"
+        });
 
     } catch(e){
         console.log(e);
-        return res.status(500).json({
+        if(!e.error){
+            return res.status(500).json({
+                status: false,
+                error: 'Something went wrong'
+            })
+        }
+
+        return res.status(400).json({
             status: false,
-            error: "Something went wrong!"
-        });
+            error: e.error
+        })
+
     }
 }
 

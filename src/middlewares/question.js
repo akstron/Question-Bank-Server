@@ -4,7 +4,7 @@
 
 const Question = require('../models/Question');
 const Tag = require('../models/Tag');
-const {isValidQuestion, isValidUpdate} = require('../utils/question');
+const {isValidQuestion, isValidUpdate, getQuestionFromDB} = require('../utils/question');
 
 Question.sync().then(() => {
     console.log("Question sync successfull");
@@ -60,14 +60,11 @@ module.exports.GetQuestions = async (req, res) => {
 
 module.exports.DeleteQuestion = async (req, res) => {
     try{
+        const { user } = req;
         const { questionId } = req.body;
+        const question = await getQuestionFromDB(questionId, user);
 
-        await Question.destroy({
-            where: {
-                id: questionId, 
-                UserId: req.user.id
-            }
-        })
+        await question.destroy();
 
         return res.json({
             status: true,
@@ -76,16 +73,39 @@ module.exports.DeleteQuestion = async (req, res) => {
     }
     catch(e){
         console.log(e);
-        return res.status(500).json({
+        if(!e.error){
+            return res.status(500).json({
+                status: false,
+                error: 'Something went wrong'
+            })
+        }
+
+        return res.status(400).json({
             status: false,
-            error: 'Something went wrong'
-        });
+            error: e.error
+        })
     }
 }
 
 module.exports.UpdateQuestion = async (req, res) => {
     try{
+        const { user } = req;
         const {questionId, updates} = req.body;
+
+        if(!questionId){
+            return res.status(400).json({
+                status: false,
+                error: 'Provide question id'
+            });
+        }
+
+        if(!updates){
+            return res.status(400).json({
+                status: false,
+                error: 'Updates missing'
+            });
+        }
+
         const {status, error} = isValidUpdate(updates);
         
         if(!status){
@@ -95,12 +115,13 @@ module.exports.UpdateQuestion = async (req, res) => {
             })
         }
 
-        await Question.update({...updates}, {
-            where: {
-                id: questionId, 
-                UserId: req.user.id
-            }
-        });
+        const question = await getQuestionFromDB(questionId, user);
+
+        for (const [key, value] of Object.entries(updates)) {
+            question[key] = value;    
+        }
+
+        await question.save();
 
         return res.json({
             status: true,
@@ -109,10 +130,17 @@ module.exports.UpdateQuestion = async (req, res) => {
     }
     catch(e){
         console.log(e);
-        return res.status(500).json({
+        if(!e.error){
+            return res.status(500).json({
+                status: false,
+                error: 'Something went wrong'
+            })
+        }
+
+        return res.status(400).json({
             status: false,
-            error: 'Something went wrong'
-        });
+            error: e.error
+        })
     }
 }
 

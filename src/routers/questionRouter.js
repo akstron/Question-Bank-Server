@@ -14,8 +14,8 @@ router.put('/updateQuestion', IsAuthenticated, UpdateQuestion);
 router.post('/addTag', IsAuthenticated, AddTag);
 router.get('/getQuestionDetails', IsAuthenticated, GetQuestionDetails);
 router.get('/getTaggedQuestions', IsAuthenticated, GetTaggedQuestions);
-router.put('/addQuestionTag', IsAuthenticated, AddQuestionTag);
-router.delete('/deleteQuestionTag', IsAuthenticated, DeleteQuestionTag);
+router.put('/addQuestionTags', IsAuthenticated, AddQuestionTag);
+router.delete('/deleteQuestionTags', IsAuthenticated, DeleteQuestionTag);
 
 
 module.exports = router;
