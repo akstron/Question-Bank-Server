@@ -40,6 +40,10 @@ module.exports.AddQuestion = async (req, res) => {
     }
 }
 
+module.exports.GetQuestion = async (req, res) => {
+    
+}
+
 module.exports.GetQuestions = async (req, res) => {
     try{
         const user = req.user;
