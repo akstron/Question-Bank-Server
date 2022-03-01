@@ -14,6 +14,8 @@ const Tag = sequelize.define('Tag', {
         allowNull: false,
         unique: true
     }
+}, {
+    timestamps: false
 });
 
 /**

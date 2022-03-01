@@ -1,32 +1,35 @@
 const User = require('../models/User');
 const passport = require('passport');
+const { registerUser } = require('../utils/user');
 
 User.sync().then(() => {
     console.log('User sync successfull');
 }).catch(err => console.log(err));
 
 module.exports.Register = async (req, res) => {
-    if(!req.body){
-        return res.status(406).json({
-            err: "No user provided"
-        });
-    }
-
-    const {email, password} = req.body;
-
     try{
-        const user = await User.register(email, password);
+        // const user = await User.register(email, password);
+
+        const userId = await registerUser(req.body);
 
         res.json({
-            user,
+            userId,
             message: "User registered!"
         });
 
-    } catch(err){
-        console.log(err);
-        res.status(406).json({
-            err
-        })
+    } catch(e){
+        console.log(e);
+        if(!e.error){
+            return res.status(406).json({
+                status: false, 
+                error: 'Something went wrong'
+            });
+        }
+
+        return res.status(406).json({
+            status: false,
+            error: e.error
+        });
     }
 };
 

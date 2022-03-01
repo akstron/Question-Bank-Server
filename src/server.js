@@ -10,6 +10,7 @@ require('./models/TagMap');
 require('./models/QuestionAccess');
 const userAuthRouter = require('./routers/userAuthRouter');
 const questionRouter = require('./routers/questionRouter');
+const userControlRouter = require('./routers/userControlRouter');
 
 const app = express();
 
@@ -39,6 +40,7 @@ app.use(passport.session());
 app.use(express.json());
 app.use(userAuthRouter);
 app.use(questionRouter);
+app.use('/user', userControlRouter);
 
 const PORT = process.env.PORT;
 

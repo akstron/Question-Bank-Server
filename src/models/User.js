@@ -10,6 +10,21 @@ const User = sequelize.define('User', {
         primaryKey: true,
         defaultValue: Sequelize.UUIDV4
     },
+    username: {
+        type: types.STRING(50),
+        allowNull: false,
+        unique: true
+    },
+    firstName: {
+        type: types.STRING(50),
+        allowNull: false
+    },
+    lastName: {
+        type: types.STRING(50)
+    },
+    bio: {
+        type: types.STRING(50)
+    },
     email: {
         type: types.STRING(50), 
         allowNull: false, 
@@ -22,12 +37,13 @@ const User = sequelize.define('User', {
             this.setDataValue('password', bcrypt.hashSync(password, 8));
         }
     }
+}, {
+    timestamps: false
 });
 
-User.register = async (email, password) => {
+User.register = async (userFields) => {
     const user = await User.create({
-        email, 
-        password
+        ...userFields
     })
 
     console.log(user);

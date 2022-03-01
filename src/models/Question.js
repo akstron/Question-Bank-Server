@@ -28,6 +28,8 @@ const Question = sequelize.define('Question', {
     notes: {
         type: types.TEXT,
     }
+}, {
+    timestamps: false
 });
 
 /**

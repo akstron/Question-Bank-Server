@@ -21,6 +21,8 @@ const TagMap = sequelize.define('TagMap', {
             key: 'id'
         }
     }
+}, {
+    timestamps: false
 });
 
 Tag.belongsToMany(Question, {
