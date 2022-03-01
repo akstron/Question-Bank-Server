@@ -5,8 +5,9 @@ module.exports = {
         return next();
       }
 
-      return res.json({
-        "error": "Not authorized!"
+      return res.status(404).json({
+        status: false,
+        error : "Not authorized!"
       })
     }
   };

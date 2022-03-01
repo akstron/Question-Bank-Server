@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const passport = require('passport');
 const { registerUser } = require('../utils/user');
+const { handleError } = require('../utils/errorHandler');
 
 User.sync().then(() => {
     console.log('User sync successfull');
@@ -8,8 +9,6 @@ User.sync().then(() => {
 
 module.exports.Register = async (req, res) => {
     try{
-        // const user = await User.register(email, password);
-
         const userId = await registerUser(req.body);
 
         res.json({
@@ -18,18 +17,7 @@ module.exports.Register = async (req, res) => {
         });
 
     } catch(e){
-        console.log(e);
-        if(!e.error){
-            return res.status(406).json({
-                status: false, 
-                error: 'Something went wrong'
-            });
-        }
-
-        return res.status(406).json({
-            status: false,
-            error: e.error
-        });
+        handleError(e, res);
     }
 };
 
@@ -40,7 +28,8 @@ module.exports.Login = (req, res, next) => {
     passport.authenticate('local', (err, user, info) => {
         if (err) { 
             return res.status(500).json({
-                err: info
+                status: false,
+                error: 'Something went wrong'
             })
         }
 
@@ -48,28 +37,40 @@ module.exports.Login = (req, res, next) => {
 
         if (!user) {
             return res.json({
-                message: info
+                status: false,
+                error: 'Wrong email or password'
             }); 
         }
 
         req.logIn(user, (err) => {
-          if (err) {
-               return res.status(500).json({
-                    err
-               }); 
+            console.log(err);
+            if (err) {
+                return res.status(500).json({
+                    status: false,
+                    error: 'Something went wrong'
+                }); 
             }
 
-          return res.status(202).json({
-                "user": req.user,
+            const userObj = {
+                id: user.id,
+                username: user.username,
+                firstName: user.firstName, 
+                lastName: user.lastName, 
+                email: user.email,
+                bio: user.bio
+            };
+
+            return res.status(202).json({
+                user : userObj,
+                status: true,
                 message: 'Logged in successfully'
-          })
+            });
         });
       })(req, res, next);
 
 };
 
 module.exports.CheckLoggedIn =  (req, res) => {
-    // console.log(req.session);
     res.send('Logged in');
 };
 

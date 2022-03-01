@@ -6,6 +6,7 @@ const Question = require('../models/Question');
 const Tag = require('../models/Tag');
 const User = require('../models/User');
 const {isValidQuestion, isValidUpdate, getUserQuestionFromDB} = require('../utils/question');
+const { handleError } = require('../utils/errorHandler');
 
 Question.sync().then(() => {
     console.log("Question sync successfull");
@@ -76,18 +77,7 @@ module.exports.DeleteQuestion = async (req, res) => {
         });
     }
     catch(e){
-        console.log(e);
-        if(!e.error){
-            return res.status(500).json({
-                status: false,
-                error: 'Something went wrong'
-            })
-        }
-
-        return res.status(400).json({
-            status: false,
-            error: e.error
-        })
+        handleError(e, res);
     }
 }
 
@@ -133,18 +123,7 @@ module.exports.UpdateQuestion = async (req, res) => {
         });
     }
     catch(e){
-        console.log(e);
-        if(!e.error){
-            return res.status(500).json({
-                status: false,
-                error: 'Something went wrong'
-            })
-        }
-
-        return res.status(400).json({
-            status: false,
-            error: e.error
-        });
+        handleError(e, res);
     }
 }
 
@@ -287,18 +266,7 @@ module.exports.ShareQuestion = async (req, res) => {
         });
 
     } catch(e){
-        console.log(e);
-        if(!e.error){
-            return res.status(500).json({
-                status: false,
-                error: 'Something went wrong'                
-            });
-        }
-
-        return res.status(400).json({
-            status: false,
-            error: e.error
-        });
+        handleError(e, res);
     }
 }
 
@@ -341,17 +309,6 @@ module.exports.UnshareQuestion = async (req, res) => {
         });
 
     } catch(e){
-        console.log(e);
-        if(!e.error){
-            return res.status(500).json({
-                status: false,
-                error: 'Something went wrong'                
-            });
-        }
-
-        return res.status(400).json({
-            status: false,
-            error: e.error
-        });
+        handleError(e, res);
     }
 }

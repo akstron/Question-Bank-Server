@@ -1,4 +1,7 @@
 const { Sequelize } = require('sequelize');
+/**
+ * FOR CONNECTION WITH HEROKU POSTGRES
+ */
 /*
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
