@@ -150,6 +150,7 @@ module.exports.UpdateQuestion = async (req, res) => {
 
 module.exports.GetQuestion = async (req, res) => {
     const { questionId } = req.params;
+    const { user } = req;
 
     if(!questionId){
         return res.status(400).json({
@@ -161,7 +162,7 @@ module.exports.GetQuestion = async (req, res) => {
     try{
         const question = await Question.findByPk(questionId, {
             attributes: [
-                'url', 'name', 'notes'
+                'url', 'name', 'notes', 'UserId'
             ],
             include: [{
                     model: Tag,
@@ -177,11 +178,22 @@ module.exports.GetQuestion = async (req, res) => {
             ]
         });
 
+        if(user.id !== question.UserId){
+            const isAccessAvailable = await user.hasQuestionAccess(questionId); 
+            if(!isAccessAvailable){
+                return res.status(400).json({
+                    status: false,
+                    error: 'Question not found!!'
+                });
+            }
+        }
+
         const questionObj = {
             url: question.url,
             name: question.name, 
             notes: question.notes,
-            tags: []
+            tags: [],
+            isEditable: (user.id === question.UserId)
         };
 
         question.Tags.forEach((tag) => {
@@ -205,9 +217,20 @@ module.exports.GetQuestion = async (req, res) => {
 }
 
 module.exports.GetTaggedQuestions = async (req, res) => {
-    const { tags } = req.body;
     try{
-        const questions = await Tag.getTaggedQuestions(tags);
+        var tags;
+        try{
+            tags = JSON.parse(req.query.tags);
+        }
+        catch(e){
+            console.log(e);
+            return res.status(400).json({
+                status: false,
+                error: 'Incorrect query string'
+            });
+        }
+
+        const questions = await Tag.getTaggedQuestions(tags, req.user);
 
         console.log(questions);
 

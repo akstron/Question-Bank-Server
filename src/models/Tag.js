@@ -79,15 +79,15 @@ Tag.getTagIds = async (tags) => {
  * TODO: Change it to only include ids
  */
 
-Tag.getTaggedQuestions = async (tags = []) => {
+Tag.getTaggedQuestions = async (tags = [], user) => {
     if(tags.length === 0) return [];
 
-    const questions = await sequelize.query(`SELECT DISTINCT q.id, q.url, q.name, q.notes\
+    const questions = await sequelize.query(`SELECT DISTINCT q.id, q.url, q.name\
  FROM "TagMaps" AS tm, "Tags" AS t, "Questions" AS q\
  WHERE tm."QuestionId" = q.id\
  AND t.name IN (:tags)\
- AND tm."TagId" = t.id;`, {
-        replacements:  {tags: tags},
+ AND tm."TagId" = t.id AND q."UserId" = :UserId;`, {
+        replacements:  {tags: tags, UserId: user.id},
         type: QueryTypes.SELECT
     });
   

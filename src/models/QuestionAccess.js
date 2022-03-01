@@ -27,7 +27,7 @@ const QuestionAccess = sequelize.define('QuestionAccess', {
 
 User.belongsToMany(Question, {
     through: QuestionAccess,
-    as: {singular: 'Share', plural: 'Shares'}
+    as: {singular: 'QuestionAccess', plural: 'QuestionAccesses'}
 });
 
 Question.belongsToMany(User, {
