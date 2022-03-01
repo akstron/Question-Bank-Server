@@ -3,7 +3,7 @@
  */
 
 const Tag = require('../models/Tag');
-const {getQuestionFromDB} = require('../utils/question');
+const {getUserQuestionFromDB} = require('../utils/question');
 
 module.exports.AddQuestionTag = async (req, res) => {
     const { user } = req;
@@ -17,8 +17,9 @@ module.exports.AddQuestionTag = async (req, res) => {
     }
 
     try{
-        const question = await getQuestionFromDB(questionId, user);
+        const question = await getUserQuestionFromDB(questionId, user);
         const tagIds = await Tag.getTagIds(tags);
+        console.log(question);
         await question.addTags(tagIds);
 
         return res.json({
@@ -57,7 +58,7 @@ module.exports.DeleteQuestionTag = async(req, res) => {
     }
 
     try{
-        const question = await getQuestionFromDB(questionId, user);
+        const question = await getUserQuestionFromDB(questionId, user);
         await question.removeTags(tagIds);
 
         return res.json({

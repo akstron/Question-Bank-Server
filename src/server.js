@@ -7,6 +7,7 @@ const sequelize = require('./config/db');
 
 require('./config/passport');
 require('./models/TagMap');
+require('./models/QuestionAccess');
 const userAuthRouter = require('./routers/userAuthRouter');
 const questionRouter = require('./routers/questionRouter');
 

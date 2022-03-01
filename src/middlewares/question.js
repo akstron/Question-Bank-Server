@@ -4,7 +4,8 @@
 
 const Question = require('../models/Question');
 const Tag = require('../models/Tag');
-const {isValidQuestion, isValidUpdate, getQuestionFromDB} = require('../utils/question');
+const User = require('../models/User');
+const {isValidQuestion, isValidUpdate, getUserQuestionFromDB} = require('../utils/question');
 
 Question.sync().then(() => {
     console.log("Question sync successfull");
@@ -40,10 +41,9 @@ module.exports.AddQuestion = async (req, res) => {
     }
 }
 
-module.exports.GetQuestion = async (req, res) => {
-    
-}
-
+/**
+ * TODO: Update this to only send question ids and names
+ */
 module.exports.GetQuestions = async (req, res) => {
     try{
         const user = req.user;
@@ -66,7 +66,7 @@ module.exports.DeleteQuestion = async (req, res) => {
     try{
         const { user } = req;
         const { questionId } = req.body;
-        const question = await getQuestionFromDB(questionId, user);
+        const question = await getUserQuestionFromDB(questionId, user);
 
         await question.destroy();
 
@@ -119,7 +119,7 @@ module.exports.UpdateQuestion = async (req, res) => {
             })
         }
 
-        const question = await getQuestionFromDB(questionId, user);
+        const question = await getUserQuestionFromDB(questionId, user);
 
         for (const [key, value] of Object.entries(updates)) {
             question[key] = value;    
@@ -144,12 +144,12 @@ module.exports.UpdateQuestion = async (req, res) => {
         return res.status(400).json({
             status: false,
             error: e.error
-        })
+        });
     }
 }
 
-module.exports.GetQuestionDetails = async (req, res) => {
-    const { questionId } = req.body;
+module.exports.GetQuestion = async (req, res) => {
+    const { questionId } = req.params;
 
     if(!questionId){
         return res.status(400).json({
@@ -221,6 +221,114 @@ module.exports.GetTaggedQuestions = async (req, res) => {
         res.status(500).json({
             status: false,
             error: 'Something went wrong'
+        });
+    }
+}
+
+module.exports.ShareQuestion = async (req, res) => {
+    const { email, questionId } = req.body;
+    if(!email){
+        return res.status(400).json({
+            status: false,
+            error: 'Email missing'
+        });
+    }
+
+    if(!questionId){
+        return res.status(400).json({
+            status: false,
+            error: 'Question id missing'
+        });
+    }
+
+    try{
+        const user = await User.findOne({
+            where: {
+                email
+            }
+        });
+
+        if(!user){
+            return res.status(400).json({
+                status: false,
+                error: 'User not found!'
+            });
+        }
+
+        const question = await getUserQuestionFromDB(questionId, req.user);
+        await question.addUserAccess(user.id);
+
+        return res.json({
+            status: true,
+            message: 'Shared'
+        });
+
+    } catch(e){
+        console.log(e);
+        if(!e.error){
+            return res.status(500).json({
+                status: false,
+                error: 'Something went wrong'                
+            });
+        }
+
+        return res.status(400).json({
+            status: false,
+            error: e.error
+        });
+    }
+}
+
+module.exports.UnshareQuestion = async (req, res) => {
+    const { email, questionId } = req.body;
+    if(!email){
+        return res.status(400).json({
+            status: false,
+            error: 'Email missing'
+        });
+    }
+
+    if(!questionId){
+        return res.status(400).json({
+            status: false,
+            error: 'Question id missing'
+        });
+    }
+
+    try{
+        const user = await User.findOne({
+            where: {
+                email
+            }
+        });
+
+        if(!user){
+            return res.status(400).json({
+                status: false,
+                error: 'User not found!'
+            });
+        }
+
+        const question = await getUserQuestionFromDB(questionId, req.user);
+        await question.removeUserAccess(user.id);
+
+        return res.json({
+            status: true,
+            message: 'Unshared'
+        });
+
+    } catch(e){
+        console.log(e);
+        if(!e.error){
+            return res.status(500).json({
+                status: false,
+                error: 'Something went wrong'                
+            });
+        }
+
+        return res.status(400).json({
+            status: false,
+            error: e.error
         });
     }
 }

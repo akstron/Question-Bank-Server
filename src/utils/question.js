@@ -1,4 +1,5 @@
 const Question = require('../models/Question');
+const Tag = require('../models/Tag');
 const validQuestionParameters = ['url', 'name', 'notes', 'tags'];
 
 module.exports.isValidQuestion = (question) => {
@@ -52,7 +53,7 @@ const isValidUUID = (uuid) => {
 }
 
 
-module.exports.getQuestionFromDB = async (questionId, user) => {
+module.exports.getUserQuestionFromDB = async (questionId, user) => {
     if(!questionId){
         throw {
             status: false,
@@ -84,4 +85,42 @@ module.exports.getQuestionFromDB = async (questionId, user) => {
     }
 
     return question;
+}
+
+/**
+ * INCOMPLETE
+ */
+module.exports.getQuestionFromDB = async (questionId, user) => {
+    if(!questionId){
+        throw {
+            status: false,
+            error: 'Question id missing'
+        }
+    }
+
+    if(!isValidUUID(questionId)){
+        throw {
+            status: false,
+            error: 'Invalid question id'
+        };
+    }
+
+    const question = await Question.findByPk(questionId, {
+        attributes: [
+            'url', 'name', 'notes'
+        ],
+        include: [{
+                model: Tag,
+                attributes: ['name'],
+                through: {
+                    /* 
+                        For removing junction object
+                        https://sequelize.org/master/manual/eager-loading.html
+                    */
+                    attributes: []
+                }
+            }
+        ]
+    });
+
 }
