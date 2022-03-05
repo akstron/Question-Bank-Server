@@ -41,10 +41,7 @@ app.use(express.json());
 app.use(userAuthRouter);
 app.use(questionRouter);
 app.use('/user', userControlRouter);
-app.get("/api",(req,res)=>{
-    res.json({message:"We got it all"})
-    console.log("We got it here")
- })
+
 
 const PORT = process.env.PORT;
 
