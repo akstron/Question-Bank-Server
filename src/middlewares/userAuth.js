@@ -80,3 +80,23 @@ module.exports.Logout = (req, res) => {
         message: "Successfully logged out!"
     });
 };
+
+module.exports.GetUser = (req, res) => {
+    try{
+        const user = req.user;
+        const userObj = {
+            id: user.id,
+            username: user.username,
+            fullName: user.fullName,
+            email: user.email,
+            bio: user.bio
+        };
+
+        res.json({
+            status: true,
+            user: userObj
+        });
+    } catch(e){
+        return handleError(e, res);
+    }
+}

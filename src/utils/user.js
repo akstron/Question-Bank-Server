@@ -1,7 +1,7 @@
 const User = require("../models/User");
 
-const validUserParameters = ['username', 'firstName', 'lastName', 'bio','email', 'password'];
-const validUserUpdateParameters = ['firstName', 'lastName', 'bio', 'password'];
+const validUserParameters = ['username', 'fullName', 'bio','email', 'password'];
+const validUserUpdateParameters = ['fullName', 'bio', 'password'];
 
 const isParametersValid = (obj, arr) => {
     const keys = Object.keys(obj);
@@ -9,6 +9,9 @@ const isParametersValid = (obj, arr) => {
     return isValid;
 }
 
+/**
+ * TODO: CHECK PASSWORD UPDATES
+ */
 module.exports.updateUser = async (updates, user) => {
     if(!isParametersValid(updates, validUserUpdateParameters)){
         throw {
@@ -17,7 +20,7 @@ module.exports.updateUser = async (updates, user) => {
         };
     }
 
-    if('firstName' in updates){
+    if('fullName' in updates){
         if (!updates.firstName){
             throw {
                 status: false,
@@ -41,7 +44,7 @@ module.exports.registerUser = async (user) => {
         };
     }
 
-    const {username, firstName, email, password} = user;
+    const {username, fullName, email, password} = user;
     
     if(!username){
         throw {
@@ -50,7 +53,7 @@ module.exports.registerUser = async (user) => {
         };
     }
 
-    if(!firstName){
+    if(!fullName){
         throw {
             status: false,
             error: "first name can't be empty"
