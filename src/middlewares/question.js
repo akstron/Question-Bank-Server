@@ -48,7 +48,30 @@ module.exports.AddQuestion = async (req, res) => {
 module.exports.GetQuestions = async (req, res) => {
     try{
         const user = req.user;
-        const questions = await user.getQuestions();
+        // const questions = await user.getQuestions();
+        const limit = req.query.limit || 10
+
+        const questions = await Question.findAll({
+            attributes: [
+                'url', 'name'
+            ],
+            include: [{
+                    model: Tag,
+                    attributes: ['id', 'name'],
+                    through: {
+                        /* 
+                            For removing junction object
+                            https://sequelize.org/master/manual/eager-loading.html
+                        */
+                        attributes: []
+                    }
+                }
+            ], 
+            where: {
+                UserId : user.id
+            },
+            limit
+        });
 
         return res.json({
             status: true,
