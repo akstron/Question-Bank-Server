@@ -33,7 +33,19 @@ const sessionOptions = {
       secure: false,
     }
 }
-app.use(cors())
+
+const corsOptions = {
+    /*origin can't be wildcard ('*') when sending credentials*/
+    origin: [process.env.REACT_APP_FRONTEND,process.env.REACT_APP_BACKEND,"http://localhost:3000","http://localhost:8000"],
+    optionsSuccessStatus: 200, // some legacy borwsers choke on 204 (IE11 & various SmartTVs)
+    /* 
+        Below sets Access-Control-Allow-Credentials to true for cross origin credentials sharing.
+        In this case it is used to get cookies, for express-session.
+    */
+    credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(session(sessionOptions));
 app.use(passport.initialize());
 app.use(passport.session());
