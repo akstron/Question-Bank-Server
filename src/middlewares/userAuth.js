@@ -54,8 +54,7 @@ module.exports.Login = (req, res, next) => {
             const userObj = {
                 id: user.id,
                 username: user.username,
-                firstName: user.firstName, 
-                lastName: user.lastName, 
+                fullName: user.fullName,
                 email: user.email,
                 bio: user.bio
             };
