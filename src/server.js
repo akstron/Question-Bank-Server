@@ -12,6 +12,7 @@ require('./models/QuestionAccess');
 const userAuthRouter = require('./routers/userAuthRouter');
 const questionRouter = require('./routers/questionRouter');
 const userControlRouter = require('./routers/userControlRouter');
+const tagRouter = require('./routers/tagRouter');
 
 const app = express();
 
@@ -53,6 +54,7 @@ app.use(express.json());
 app.use(userAuthRouter);
 app.use(questionRouter);
 app.use('/user', userControlRouter);
+app.use('/tag', tagRouter);
 
 
 const PORT = process.env.PORT;

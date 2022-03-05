@@ -1,5 +1,5 @@
 const sequelize = require('../config/db');
-const {DataTypes: types, QueryTypes} = require("sequelize");
+const {DataTypes: types, QueryTypes, Op} = require("sequelize");
 
 const Tag = sequelize.define('Tag', {
     id: {
@@ -94,6 +94,26 @@ Tag.getTaggedQuestions = async (tags = [], user) => {
     });
   
     return questions;
+}
+
+Tag.getSearchTags = async (searchText, limit = 5) => {
+    if(!searchText){
+        throw{
+            status: false,
+            error: 'Search text missing'
+        }
+    }
+
+    const tags = await Tag.findAll({
+        where:{
+            name: {
+                [Op.like] : '%' + searchText + '%'
+            }
+        }, 
+        limit
+    });
+
+    return tags;
 }
 
 Tag.sync().then(() => {

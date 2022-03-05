@@ -4,7 +4,7 @@
 
 const Tag = require('../models/Tag');
 const {getUserQuestionFromDB} = require('../utils/question');
-
+const { handleError } = require('../utils/errorHandler');
 module.exports.AddQuestionTag = async (req, res) => {
     const { user } = req;
     const { questionId, tags } = req.body;
@@ -110,5 +110,27 @@ module.exports.AddTag = async (req, res) => {
             status: false, 
             error: e.error || 'Something went wrong'
         });
+    }
+}
+
+/*Search Tag in Database*/
+module.exports.GetSearchTags = async (req, res) => {
+    try{
+        const { searchText, limit } = req.query;
+        if(!searchText){
+            throw{
+                status: false,
+                error: 'Search text missing'
+            }
+        }
+
+        const tags = await Tag.getSearchTags(searchText, limit);
+        return res.json({
+            status: false,
+            tags
+        });
+    }
+    catch(e){
+        return handleError(e, res);
     }
 }
