@@ -7,6 +7,7 @@ const Tag = require('../models/Tag');
 const User = require('../models/User');
 const {isValidQuestion, isValidUpdate, getUserQuestionFromDB} = require('../utils/question');
 const { handleError } = require('../utils/errorHandler');
+const Notification = require('../models/Notification');
 
 Question.sync().then(() => {
     console.log("Question sync successfull");
@@ -53,7 +54,7 @@ module.exports.GetQuestions = async (req, res) => {
 
         const questions = await Question.findAll({
             attributes: [
-                'url', 'name'
+                'id', 'url', 'name'
             ],
             include: [{
                     model: Tag,
@@ -282,6 +283,11 @@ module.exports.ShareQuestion = async (req, res) => {
 
         const question = await getUserQuestionFromDB(questionId, req.user);
         await question.addUserAccess(user.id);
+        await Notification.addNotification(user.id, {
+            title: 'He',
+            type: 'Important notification',
+            content: 'Not so important notification'
+        });
 
         return res.json({
             status: true,

@@ -92,7 +92,7 @@ module.exports.GetUser = (req, res) => {
             bio: user.bio
         };
 
-        res.json({
+        return res.json({
             status: true,
             user: userObj
         });
