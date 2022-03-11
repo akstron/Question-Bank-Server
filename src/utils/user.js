@@ -103,6 +103,13 @@ module.exports.registerUser = async (user) => {
         };
     }
 
-    const userId = await User.register(user);
-    return userId;
+    const registeredUser = await User.register(user);
+    const registerdUserObj = {
+        username: registeredUser.username,
+        fullName: registeredUser.fullName,
+        email: registeredUser.email,
+        id: registeredUser.id,
+        bio: registeredUser.bio
+    }
+    return registerdUserObj;
 }

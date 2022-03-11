@@ -45,7 +45,7 @@ User.register = async (userFields) => {
 
     console.log(user);
 
-    return user.id;
+    return user;
 }
 
 User.sync().then(() => console.log('User sync successfull'))

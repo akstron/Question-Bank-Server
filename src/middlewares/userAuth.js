@@ -9,10 +9,11 @@ User.sync().then(() => {
 
 module.exports.Register = async (req, res) => {
     try{
-        const userId = await registerUser(req.body);
+        // console.log(req.body);
+        const user = await registerUser(req.body);
 
         res.json({
-            userId,
+            user,
             message: "User registered!"
         });
 
@@ -33,7 +34,7 @@ module.exports.Login = (req, res, next) => {
             })
         }
 
-        console.log('info:', info);
+        // console.log('info:', info);
 
         if (!user) {
             return res.json({
@@ -43,7 +44,7 @@ module.exports.Login = (req, res, next) => {
         }
 
         req.logIn(user, (err) => {
-            console.log(err);
+            // console.log(err);
             if (err) {
                 return res.status(500).json({
                     status: false,
