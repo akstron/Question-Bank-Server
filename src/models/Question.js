@@ -51,6 +51,26 @@ Question.addQuestion = async (UserId, questionObj) => {
     return question;
 }
 
+Question.findByPkWithTags = async (questionId) => {
+    return Question.findByPk(questionId, {
+        attributes: [
+            'url', 'name', 'notes', 'UserId', 'difficulty', 'id'
+        ],
+        include: [{
+                model: Tag,
+                attributes: ['id', 'name'],
+                through: {
+                    /* 
+                        For removing junction object
+                        https://sequelize.org/master/manual/eager-loading.html
+                    */
+                    attributes: []
+                }
+            }
+        ]
+    });
+}
+
 User.hasMany(Question, {
     foreignKey: {
         type: types.UUID,

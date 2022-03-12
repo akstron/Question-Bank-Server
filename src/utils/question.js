@@ -1,5 +1,5 @@
 const Question = require('../models/Question');
-const Tag = require('../models/Tag');
+const { isUUID } = require('validator');
 const validQuestionParameters = ['url', 'name', 'notes', 'tags', 'difficulty'];
 
 module.exports.isValidQuestion = (question) => {
@@ -39,7 +39,7 @@ module.exports.isValidQuestion = (question) => {
     };
 };
 
-module.exports.isValidUpdate = (question) => {
+const isValidUpdate = (question) => {
     const keys = Object.keys(question);
     const isValid = keys.every((key) => validQuestionParameters.includes(key));
 
@@ -55,12 +55,8 @@ module.exports.isValidUpdate = (question) => {
     }
 }
 
-const isValidUUID = (uuid) => {
-    return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(uuid);
-}
 
-
-module.exports.getUserQuestionFromDB = async (questionId, user) => {
+const getUserQuestionFromDB = async (questionId, user) => {
     if(!questionId){
         throw {
             status: false,
@@ -68,7 +64,7 @@ module.exports.getUserQuestionFromDB = async (questionId, user) => {
         }
     }
 
-    if(!isValidUUID(questionId)){
+    if(!isUUID(questionId, [4])){
         throw {
             status: false,
             error: 'Invalid question id'
@@ -94,40 +90,56 @@ module.exports.getUserQuestionFromDB = async (questionId, user) => {
     return question;
 }
 
-/**
- * INCOMPLETE
- */
-module.exports.getQuestionFromDB = async (questionId, user) => {
+module.exports.getUserQuestionFromDB = getUserQuestionFromDB;
+
+module.exports.updateQuestion = async (user, questionId, updates) => {
+    if(!questionId){
+        throw{
+            status: false,
+            error: 'Provide question id'
+        }
+    }
+
+    if(!updates){
+        throw({
+            status: false,
+            error: 'Updates missing'
+        });
+    }
+    
+    const {status, error} = isValidUpdate(updates);
+        
+    if(!status){
+        throw {
+            status, 
+            error
+        };
+    }
+
+    const question = await getUserQuestionFromDB(questionId, user);
+
+    for (const [key, value] of Object.entries(updates)) {
+        question[key] = value;    
+    }
+
+    await question.save();
+    return question;
+}
+
+module.exports.getQuestionFromDB = async (questionId) => {    
     if(!questionId){
         throw {
             status: false,
             error: 'Question id missing'
-        }
-    }
-
-    if(!isValidUUID(questionId)){
-        throw {
-            status: false,
-            error: 'Invalid question id'
         };
     }
 
-    const question = await Question.findByPk(questionId, {
-        attributes: [
-            'url', 'name', 'notes'
-        ],
-        include: [{
-                model: Tag,
-                attributes: ['name'],
-                through: {
-                    /* 
-                        For removing junction object
-                        https://sequelize.org/master/manual/eager-loading.html
-                    */
-                    attributes: []
-                }
-            }
-        ]
-    });
+    if(!isUUID(questionId, [4])){
+        throw {
+            status: false,
+            error: 'Incorrect question id'
+        };
+    }
 
+    return Question.findByPkWithTags(questionId);
 }

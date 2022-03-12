@@ -48,6 +48,14 @@ User.register = async (userFields) => {
     return user;
 }
 
+User.findByEmail = async (email) => {
+    return User.findOne({
+        where: {
+            email
+        }
+    });
+}
+
 User.sync().then(() => console.log('User sync successfull'))
 .catch(e => console.log(e));
 
