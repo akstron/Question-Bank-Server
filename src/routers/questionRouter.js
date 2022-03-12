@@ -8,7 +8,7 @@ const { AddQuestion, GetQuestions, DeleteQuestion, UpdateQuestion, GetTaggedQues
 const { AddTag, AddQuestionTag, DeleteQuestionTag } = require('../middlewares/tag');
 
 router.post('/addQuestion', IsAuthenticated, AddQuestion);
-router.get('/getQuestion/:questionId', IsAuthenticated, GetQuestion);
+router.get('/getQuestion', IsAuthenticated, GetQuestion);
 router.get('/getQuestions', IsAuthenticated, GetQuestions);
 router.delete('/deleteQuestion', IsAuthenticated, DeleteQuestion);
 router.put('/updateQuestion', IsAuthenticated, UpdateQuestion);

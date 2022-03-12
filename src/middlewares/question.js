@@ -8,6 +8,7 @@ const User = require('../models/User');
 const {isValidQuestion, isValidUpdate, getUserQuestionFromDB} = require('../utils/question');
 const { handleError } = require('../utils/errorHandler');
 const Notification = require('../models/Notification');
+const { addShareQuestionNotification } = require('../utils/notification');
 
 Question.sync().then(() => {
     console.log("Question sync successfull");
@@ -49,12 +50,11 @@ module.exports.AddQuestion = async (req, res) => {
 module.exports.GetQuestions = async (req, res) => {
     try{
         const user = req.user;
-        // const questions = await user.getQuestions();
         const limit = req.query.limit || 10
 
         const questions = await Question.findAll({
             attributes: [
-                'id', 'url', 'name'
+                'id', 'url', 'name', 'difficulty'
             ],
             include: [{
                     model: Tag,
@@ -152,7 +152,7 @@ module.exports.UpdateQuestion = async (req, res) => {
 }
 
 module.exports.GetQuestion = async (req, res) => {
-    const { questionId } = req.params;
+    const { questionId } = req.query;
     const { user } = req;
 
     if(!questionId){
@@ -165,11 +165,11 @@ module.exports.GetQuestion = async (req, res) => {
     try{
         const question = await Question.findByPk(questionId, {
             attributes: [
-                'url', 'name', 'notes', 'UserId'
+                'url', 'name', 'notes', 'UserId', 'difficulty', 'id'
             ],
             include: [{
                     model: Tag,
-                    attributes: ['name'],
+                    attributes: ['id', 'name'],
                     through: {
                         /* 
                             For removing junction object
@@ -192,21 +192,18 @@ module.exports.GetQuestion = async (req, res) => {
         }
 
         const questionObj = {
+            id: question.id,
             url: question.url,
             name: question.name, 
             notes: question.notes,
-            tags: [],
+            tags: question.Tags,
             isEditable: (user.id === question.UserId)
         };
-
-        question.Tags.forEach((tag) => {
-            questionObj.tags.push(tag.name);
-        });
-
 
         return res.json({
             status: true,
             question: questionObj
+            // question
         });
     }
 
@@ -282,12 +279,17 @@ module.exports.ShareQuestion = async (req, res) => {
         }
 
         const question = await getUserQuestionFromDB(questionId, req.user);
+
+        /* If question is already shared don't share it again!*/
+        if(question.hasUserAccess(user.id)){
+            return res.json({
+                status: true,
+                message: 'Question already shared'
+            });
+        }
+
         await question.addUserAccess(user.id);
-        await Notification.addNotification(user.id, {
-            title: 'He',
-            type: 'Important notification',
-            content: 'Not so important notification'
-        });
+        await addShareQuestionNotification(req.user, user, question);
 
         return res.json({
             status: true,

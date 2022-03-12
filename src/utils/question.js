@@ -1,6 +1,6 @@
 const Question = require('../models/Question');
 const Tag = require('../models/Tag');
-const validQuestionParameters = ['url', 'name', 'notes', 'tags'];
+const validQuestionParameters = ['url', 'name', 'notes', 'tags', 'difficulty'];
 
 module.exports.isValidQuestion = (question) => {
     const keys = Object.keys(question);
@@ -25,6 +25,13 @@ module.exports.isValidQuestion = (question) => {
             status: false,
             error: 'Question name missing'
         };
+    }
+
+    if(!question.difficulty){
+        return {
+            status: false,
+            error: 'Difficulty missing'
+        }
     }
 
     return {

@@ -1,5 +1,6 @@
 const Notification = require("../models/Notification");
-const { handleError } = require("../utils/errorHandler")
+const { handleError } = require("../utils/errorHandler");
+const { getUserNotificationFromDB } = require("../utils/notification");
 
 module.exports.GetNotifications = async (req, res) => {
     try{
@@ -23,6 +24,24 @@ module.exports.GetNotifications = async (req, res) => {
         return res.json({
             status: true,
             notifications
+        });
+    }
+    catch(e){
+        return handleError(e, res);
+    }
+}
+
+module.exports.DeleteNotification = async (req, res) => {
+    try{
+        const user = req.user;
+        const { notificationId } = req.body;
+        console.log('notificationId: ', notificationId);
+        const notification = await getUserNotificationFromDB(notificationId, user);
+        await notification.destroy();
+
+        return res.json({
+            status: true,
+            message: 'Notification deleted'
         });
     }
     catch(e){

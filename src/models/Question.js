@@ -27,14 +27,15 @@ const Question = sequelize.define('Question', {
 
     notes: {
         type: types.TEXT,
+    },  
+
+    difficulty: {
+        type: types.INTEGER, 
+        allowNull: false,
     }
 }, {
-    timestamps: false
+    timestamps: true
 });
-
-/**
- * TODO: Complete tagging mechanism
- */
 
 Question.addQuestion = async (UserId, questionObj) => {
     const question = await Question.create({
