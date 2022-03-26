@@ -52,8 +52,8 @@ app.use(session(sessionOptions));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.json());
-app.use(userAuthRouter);
-app.use(questionRouter);
+app.use('/auth', userAuthRouter);
+app.use('/question', questionRouter);
 app.use('/user', userControlRouter);
 app.use('/tag', tagRouter);
 

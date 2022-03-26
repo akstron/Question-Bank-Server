@@ -44,9 +44,6 @@ module.exports.AddQuestion = async (req, res) => {
     }
 }
 
-/**
- * TODO: Update this to only send question ids and names
- */
 module.exports.GetQuestions = async (req, res) => {
     try{
         const user = req.user;
@@ -181,6 +178,13 @@ module.exports.GetTaggedQuestions = async (req, res) => {
             });
         }
 
+        if(!Array.isArray(tags)){
+            throw { 
+                status: false,
+                error: 'Tags should be an array'
+            };
+        }
+
         const questions = await Tag.getTaggedQuestions(tags, req.user);
 
         return res.json({
@@ -281,6 +285,34 @@ module.exports.UnshareQuestion = async (req, res) => {
         });
 
     } catch(e){
+        handleError(e, res);
+    }
+}
+
+module.exports.GetStats = async (req, res) => {
+    try{
+        var stats;
+        try{
+            stats = JSON.parse(req.query.stats);
+        }
+        catch(e){
+            console.log(e);
+            return res.status(400).json({
+                status: false,
+                error: 'Incorrect query string'
+            });
+        }
+
+        if(!Array.isArray(stats)){
+            throw {
+                status: false,
+                error: 'Stats query should be an array'
+            };
+        }
+
+        
+    }
+    catch(e){
         handleError(e, res);
     }
 }
