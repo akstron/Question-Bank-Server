@@ -1,6 +1,6 @@
 const sequelize = require('../config/db');
 const { Sequelize } = require('sequelize');
-const {DataTypes: types} = require("sequelize");
+const {DataTypes: types, QueryTypes} = require("sequelize");
 const bcrypt = require('bcryptjs');
 
 const User = sequelize.define('User', {
@@ -54,6 +54,37 @@ User.findByEmail = async (email) => {
             email
         }
     });
+}
+
+User.prototype.findTagStats = async function(offset = 0, limit = 5) {
+    const user = this;
+    const stats = await sequelize.query(`select count(q.id) as "count", \
+t."TagId" as "tagId", t2.name as "TagName" from "Users" as u \
+INNER JOIN "Questions" as q ON u.id = q."UserId" \
+INNER JOIN "TagMaps" as t ON q.id = t."QuestionId" \
+INNER JOIN "Tags" as t2 ON t."TagId" = t2.id \
+where u.id = :UserId \
+GROUP BY t."TagId", t2.name \
+ORDER BY t2."name" LIMIT :limit OFFSET :offset;`, {
+        replacements:  {limit: limit, UserId: user.id, offset: offset},
+        type: QueryTypes.SELECT
+    });
+
+    console.log(stats);
+
+    return stats;
+}
+
+User.prototype.findDifficultyStats = async function(offset = 0, limit = 5) {
+    const user = this;
+    const stats = await sequelize.query(`select difficulty, count(difficulty) \
+as "count" from "Questions" as q where q."UserId" = :UserId GROUP BY difficulty \
+ORDER BY difficulty LIMIT :limit OFFSET :offset;`, {
+        replacements:  {limit: limit, UserId: user.id, offset: offset},
+        type: QueryTypes.SELECT
+    });
+
+    return stats;
 }
 
 User.sync().then(() => console.log('User sync successfull'))

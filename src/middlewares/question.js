@@ -288,31 +288,3 @@ module.exports.UnshareQuestion = async (req, res) => {
         handleError(e, res);
     }
 }
-
-module.exports.GetStats = async (req, res) => {
-    try{
-        var stats;
-        try{
-            stats = JSON.parse(req.query.stats);
-        }
-        catch(e){
-            console.log(e);
-            return res.status(400).json({
-                status: false,
-                error: 'Incorrect query string'
-            });
-        }
-
-        if(!Array.isArray(stats)){
-            throw {
-                status: false,
-                error: 'Stats query should be an array'
-            };
-        }
-
-        
-    }
-    catch(e){
-        handleError(e, res);
-    }
-}

@@ -1,7 +1,10 @@
 const User = require("../models/User");
+const {ClientError} = require('../utils/errorHandler');
+const Question = require('../models/Question');
 
 const validUserParameters = ['username', 'fullName', 'bio','email', 'password'];
 const validUserUpdateParameters = ['fullName', 'bio', 'password'];
+const validStatsType = ['difficulty', 'tag'];
 
 const isParametersValid = (obj, arr) => {
     const keys = Object.keys(obj);
@@ -112,4 +115,36 @@ module.exports.registerUser = async (user) => {
         bio: registeredUser.bio
     }
     return registerdUserObj;
+}
+
+module.exports.getStats = async (user, statOptions) => {
+    if(!Array.isArray(statOptions)){
+        throw {
+            status: false,
+            error: 'stats should be an array'
+        }
+    }
+
+    const isValidTypes = statOptions.every((obj) => validStatsType.includes(obj.type));
+    if(!isValidTypes){
+        throw new ClientError('Invalid statistic types');
+    }
+
+    const stats = []; 
+
+    // make database query here
+    for(let i = 0; i < statOptions.length; i++){
+        if(statOptions[i].type === 'tag'){
+            stats.push(await user.findTagStats(statOptions[i].offset, statOptions[i].limit));
+        }
+
+        if(statOptions[i].type === 'difficulty'){
+            stats.push(await user.findDifficultyStats(statOptions[i].offset, statOptions[i].limit));
+        }
+    }
+
+    // stats.push(await user.findTagStats());
+    // console.log(stats);
+
+    return stats;
 }
