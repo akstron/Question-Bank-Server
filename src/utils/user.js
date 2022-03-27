@@ -1,6 +1,5 @@
 const User = require("../models/User");
 const {ClientError} = require('../utils/errorHandler');
-const Question = require('../models/Question');
 
 const validUserParameters = ['username', 'fullName', 'bio','email', 'password'];
 const validUserUpdateParameters = ['fullName', 'bio', 'password'];
@@ -119,10 +118,7 @@ module.exports.registerUser = async (user) => {
 
 module.exports.getStats = async (user, statOptions) => {
     if(!Array.isArray(statOptions)){
-        throw {
-            status: false,
-            error: 'stats should be an array'
-        }
+        throw new ClientError('options should be an array');
     }
 
     const isValidTypes = statOptions.every((obj) => validStatsType.includes(obj.type));
@@ -142,9 +138,6 @@ module.exports.getStats = async (user, statOptions) => {
             stats.push(await user.findDifficultyStats(statOptions[i].offset, statOptions[i].limit));
         }
     }
-
-    // stats.push(await user.findTagStats());
-    // console.log(stats);
 
     return stats;
 }

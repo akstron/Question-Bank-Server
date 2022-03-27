@@ -19,12 +19,5 @@ router.put('/addQuestionTags', IsAuthenticated, AddQuestionTag);
 router.delete('/deleteQuestionTags', IsAuthenticated, DeleteQuestionTag);
 router.post('/shareQuestion', IsAuthenticated, ShareQuestion);
 router.post('/unshareQuestion', IsAuthenticated, UnshareQuestion);
-/* 
-    QueryString: [{type, offset, limit}]
-
-    // type = {difficulty, tag}
-    returns in sorted order
-*/
-router.get('/getStats', IsAuthenticated, GetStats);
 
 module.exports = router;

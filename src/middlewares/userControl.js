@@ -35,10 +35,9 @@ module.exports.EditUser = async (req, res) => {
 
 module.exports.GetStats = async (req, res) => {
     try{
-        var stats;
+        var options;
         try{
-            console.log(req.query.stats);
-            stats = JSON.parse(req.query.stats);
+            options = JSON.parse(req.query.options);
         }
         catch(e){
             console.log(e);
@@ -48,11 +47,11 @@ module.exports.GetStats = async (req, res) => {
             });
         }
 
-        if(!Array.isArray(stats)){
+        if(!Array.isArray(options)){
             throw new ClientError('stats should be an array');
         }
 
-        const result = await getStats(req.user, stats);
+        const result = await getStats(req.user, options);
         return res.json({
             status: true,
             stats: result
