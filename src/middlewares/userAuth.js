@@ -14,7 +14,8 @@ module.exports.Register = async (req, res) => {
 
         res.json({
             user,
-            message: "User registered!"
+            message: "User registered!",
+            status: true
         });
 
     } catch(e){
