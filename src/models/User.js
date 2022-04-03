@@ -56,6 +56,14 @@ User.findByEmail = async (email) => {
     });
 }
 
+User.findByUsername = async (username) => {
+    return User.findOne({
+        where: {
+            username
+        }
+    });
+}
+
 User.prototype.findTagStats = async function(offset = 0, limit = 5) {
     const user = this;
     const stats = await sequelize.query(`select count(q.id) as "count", \

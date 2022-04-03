@@ -18,18 +18,7 @@ module.exports.EditUser = async (req, res) => {
             message: 'User updated'
         });
     } catch(e){
-        console.log(e);
-        if(!e.error){
-            return res.status(500).json({
-                status: false,
-                error: 'Something went wrong'
-            });
-        }
-
-        return res.status(400).json({
-            status: false,
-            error: e.error
-        })
+       return handleError(e, res);
     }
 }
 

@@ -16,18 +16,12 @@ const isParametersValid = (obj, arr) => {
  */
 module.exports.updateUser = async (updates, user) => {
     if(!isParametersValid(updates, validUserUpdateParameters)){
-        throw {
-            status: false,
-            error: 'Invalid parameters'
-        };
+        throw new ClientError('Invalid paramenters');
     }
 
     if('fullName' in updates){
-        if (!updates.firstName){
-            throw {
-                status: false,
-                error: "first name can't be empty" 
-            };
+        if (!updates.fullName){
+            throw new ClientError("Full name can't be empty");
         }
     }
 
@@ -40,69 +34,40 @@ module.exports.updateUser = async (updates, user) => {
 
 module.exports.registerUser = async (user) => {
     if(!isParametersValid(user, validUserParameters)){
-        throw {
-            status: false,
-            error: 'Invalid parameters'
-        };
+        throw new ClientError('Invalid paramenters');
     }
 
     const {username, fullName, email, password} = user;
     
     if(!username){
-        throw {
-            status: false,
-            error: "username can't be empty"
-        };
+        throw new ClientError("Username can't be empty");
     }
 
     if(!fullName){
-        throw {
-            status: false,
-            error: "first name can't be empty"
-        }
+        throw new ClientError("Full name can't be empty");
     }
 
     if(!email){
-        throw {
-            status: false,
-            error: "email can't be empty"
-        }
+        throw new ClientError("Email can't be empty");
     }
 
     /**
      * TODO: Add checks for password!
      */
     if(!password){
-        throw {
-            status: false,
-            error: "password can't be empty"
-        };
+        throw new ClientError("Password can't be empty");
     }
 
-    const userWithEmail = await User.findOne({
-        where: {
-            email
-        }
-    });
+    const userWithEmail = await User.findByEmail(email);
 
     if(userWithEmail){
-        throw {
-            status: false,
-            error: 'Email already registered'
-        }
+        throw new ClientError('Email already registered');
     }
 
-    const userWithUsername = await User.findOne({
-        where: {
-            username
-        }
-    });
+    const userWithUsername = await User.findByUsername(username);
 
     if(userWithUsername){
-        throw {
-            status: false,
-            error: 'Username already exists'
-        };
+        throw new ClientError('Username already exists');
     }
 
     const registeredUser = await User.register(user);
