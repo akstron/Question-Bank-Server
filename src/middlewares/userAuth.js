@@ -78,6 +78,7 @@ module.exports.CheckLoggedIn =  (req, res) => {
 module.exports.Logout = (req, res) => {
     req.logOut();
     res.json({
+        status: true,
         message: "Successfully logged out!"
     });
 };
