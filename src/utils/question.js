@@ -117,3 +117,11 @@ module.exports.getQuestionFromDB = async (questionId) => {
 
     return Question.findByPkWithTags(questionId);
 }
+
+/**
+ * TODO: Complete below function
+ */
+
+module.exports.getUserQuestions = async (user, limit) => {
+
+}
