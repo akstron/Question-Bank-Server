@@ -1,5 +1,6 @@
 const Question = require('../models/Question');
 const { isUUID } = require('validator');
+const { ClientError } = require('./errorHandler');
 const validQuestionParameters = ['url', 'name', 'notes', 'tags', 'difficulty'];
 
 module.exports.isValidQuestion = (question) => {
@@ -58,33 +59,21 @@ const isValidUpdate = (question) => {
 
 const getUserQuestionFromDB = async (questionId, user) => {
     if(!questionId){
-        throw {
-            status: false,
-            error: 'Question id missing'
-        }
+        throw new ClientError('Question id missing');
     }
 
     if(!isUUID(questionId, [4])){
-        throw {
-            status: false,
-            error: 'Invalid question id'
-        };
+        throw new ClientError('Invalid question id');
     }
 
     const question = await Question.findByPk(questionId);
 
     if(!question){
-        throw {
-            status: false,
-            error: 'Question not found!'
-        };
+        throw new ClientError('Question not found');
     }
 
     if(question.UserId !== user.id){
-        throw {
-            status: false,
-            error: 'Question not found!!'
-        };
+        throw new ClientError('Question not found');
     }
 
     return question;
@@ -94,26 +83,17 @@ module.exports.getUserQuestionFromDB = getUserQuestionFromDB;
 
 module.exports.updateQuestion = async (user, questionId, updates) => {
     if(!questionId){
-        throw{
-            status: false,
-            error: 'Provide question id'
-        }
+        throw new ClientError('Question id missing');
     }
 
     if(!updates){
-        throw({
-            status: false,
-            error: 'Updates missing'
-        });
+        throw new ClientError('Updates missing');
     }
     
     const {status, error} = isValidUpdate(updates);
         
     if(!status){
-        throw {
-            status, 
-            error
-        };
+        throw new ClientError(error);
     }
 
     const question = await getUserQuestionFromDB(questionId, user);
@@ -128,17 +108,11 @@ module.exports.updateQuestion = async (user, questionId, updates) => {
 
 module.exports.getQuestionFromDB = async (questionId) => {    
     if(!questionId){
-        throw {
-            status: false,
-            error: 'Question id missing'
-        };
+        throw new ClientError('Question id missing');
     }
 
     if(!isUUID(questionId, [4])){
-        throw {
-            status: false,
-            error: 'Incorrect question id'
-        };
+        throw new ClientError('Incorrect question id');
     }
 
     return Question.findByPkWithTags(questionId);

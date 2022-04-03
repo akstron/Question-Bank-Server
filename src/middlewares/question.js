@@ -94,7 +94,7 @@ module.exports.DeleteQuestion = async (req, res) => {
 
         return res.json({
             status: true,
-            message: "Question removed successfully"
+            message: "Question deleted successfully"
         });
     }
     catch(e){
