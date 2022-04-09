@@ -9,13 +9,7 @@ class ClientError extends Error {
 module.exports.ClientError = ClientError;
 
 module.exports.handleError = (e, res) => { 
-    // console.log(e);
-    // if(!e.error){
-    //     return res.status(500).json({
-    //         status: false,
-    //         error: 'Something went wrong'
-    //     });
-    // }
+    console.log(e);
 
     if(e.isClientError){
         return res.status(400).json({

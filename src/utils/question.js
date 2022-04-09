@@ -1,9 +1,9 @@
 const Question = require('../models/Question');
 const { isUUID } = require('validator');
 const { ClientError } = require('./errorHandler');
-const validQuestionParameters = ['url', 'name', 'notes', 'tags', 'difficulty'];
+const validQuestionParameters = ['url', 'name', 'notes', 'tags', 'difficulty', 'description'];
 
-module.exports.isValidQuestion = (question) => {
+const isValidQuestion = (question) => {
     const keys = Object.keys(question);
     const isValid = keys.every((key) => validQuestionParameters.includes(key));
 
@@ -35,6 +35,13 @@ module.exports.isValidQuestion = (question) => {
         }
     }
 
+    if(!question.description){
+        return {
+            status: false,
+            error: 'Description missing'
+        };
+    }
+
     return {
         status: true
     };
@@ -56,6 +63,15 @@ const isValidUpdate = (question) => {
     }
 }
 
+module.exports.addQuestion = async (userId, question) => {
+    const {status, error} = isValidQuestion(question);
+
+    if(!status){
+        throw new ClientError(error);
+    }
+
+    return Question.addQuestion(userId, question);
+}
 
 const getUserQuestionFromDB = async (questionId, user) => {
     if(!questionId){

@@ -5,7 +5,7 @@
 const Question = require('../models/Question');
 const Tag = require('../models/Tag');
 const User = require('../models/User');
-const {isValidQuestion, isValidUpdate, getUserQuestionFromDB, getQuestionFromDB, updateQuestion} = require('../utils/question');
+const {addQuestion, getUserQuestionFromDB, getQuestionFromDB, updateQuestion} = require('../utils/question');
 const { handleError } = require('../utils/errorHandler');
 const Notification = require('../models/Notification');
 const { addShareQuestionNotification } = require('../utils/notification');
@@ -17,16 +17,7 @@ Question.sync().then(() => {
 
 module.exports.AddQuestion = async (req, res) => {
     try{
-        const {status, error} = isValidQuestion(req.body);
-
-        if(!status){
-            return res.status(400).json({
-                status,
-                error
-            });
-        }
-
-        const question = await Question.addQuestion(req.user.id, req.body);
+        const question = await addQuestion(req.user.id, req.body);
 
         return res.json({
             questionId: question.id,
@@ -35,12 +26,7 @@ module.exports.AddQuestion = async (req, res) => {
         });
     }   
     catch(e){
-        console.log(e);
-
-        return res.status(500).json({
-            status: false, 
-            error: 'Something went wrong'
-        });
+        handleError(e, res);
     }
 }
 
