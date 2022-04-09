@@ -76,26 +76,6 @@ Question.findByPkWithTags = async (questionId) => {
     });
 }
 
-User.hasMany(Question, {
-    foreignKey: {
-        type: types.UUID,
-        allowNull: false,
-    },
-
-    onDelete: 'CASCADE', 
-    onUpdate: 'CASCADE'
-});
-
-Question.belongsTo(User, {
-    foreignKey: {
-        type: types.UUID,
-        allowNull: false,
-    },
-
-    onDelete: 'CASCADE', 
-    onUpdate: 'CASCADE'
-});
-
 Question.sync().then(() => {
     console.log('Question sync successfull');
 }).catch(e => console.log(e));

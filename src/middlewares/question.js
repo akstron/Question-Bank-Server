@@ -5,10 +5,10 @@
 const Question = require('../models/Question');
 const Tag = require('../models/Tag');
 const User = require('../models/User');
-const {addQuestion, getUserQuestionFromDB, getQuestionFromDB, updateQuestion} = require('../utils/question');
+const {addQuestion, getUserQuestionFromDB, getQuestionFromDB, updateQuestion, getUserQuestions} = require('../utils/question');
 const { handleError } = require('../utils/errorHandler');
-const Notification = require('../models/Notification');
 const { addShareQuestionNotification } = require('../utils/notification');
+const { user } = require('pg/lib/defaults');
 
 Question.sync().then(() => {
     console.log("Question sync successfull");
@@ -32,30 +32,8 @@ module.exports.AddQuestion = async (req, res) => {
 
 module.exports.GetQuestions = async (req, res) => {
     try{
-        const user = req.user;
-        const limit = req.query.limit || 10
-
-        const questions = await Question.findAll({
-            attributes: [
-                'id', 'url', 'name', 'difficulty'
-            ],
-            include: [{
-                    model: Tag,
-                    attributes: ['id', 'name'],
-                    through: {
-                        /* 
-                            For removing junction object
-                            https://sequelize.org/master/manual/eager-loading.html
-                        */
-                        attributes: []
-                    }
-                }
-            ], 
-            where: {
-                UserId : user.id
-            },
-            limit
-        });
+        const {offset, limit} = req.query;
+        const questions = await getUserQuestions(req.user, offset, limit);
 
         return res.json({
             status: true,
@@ -63,10 +41,7 @@ module.exports.GetQuestions = async (req, res) => {
         });
     }
     catch(e){
-        return res.status(500).json({
-            status: false,
-            error: 'Something went wrong'
-        });
+        return handleError(e, res);
     }
 }
 

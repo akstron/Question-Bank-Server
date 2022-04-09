@@ -138,6 +138,6 @@ module.exports.getQuestionFromDB = async (questionId) => {
  * TODO: Complete below function
  */
 
-module.exports.getUserQuestions = async (user, limit) => {
-
+module.exports.getUserQuestions = async (user, offset, limit) => {
+    return user.getQuestions(offset, limit);
 }

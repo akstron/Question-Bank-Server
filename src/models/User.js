@@ -1,6 +1,8 @@
 const sequelize = require('../config/db');
 const { Sequelize } = require('sequelize');
 const {DataTypes: types, QueryTypes} = require("sequelize");
+const Question = require('./Question');
+const Tag = require('./Tag');
 const bcrypt = require('bcryptjs');
 
 const User = sequelize.define('User', {
@@ -94,6 +96,58 @@ ORDER BY difficulty LIMIT :limit OFFSET :offset;`, {
 
     return stats;
 }
+
+User.prototype.getQuestions = async function(offset = 0, limit = 5) {
+    const user = this;
+    console.log(offset);
+
+    return Question.findAll({
+        attributes: [
+            'id', 'url', 'name', 'difficulty', 'description'
+        ],
+        include: [{
+                model: Tag,
+                attributes: ['id', 'name'],
+                through: {
+                    /* 
+                        For removing junction object
+                        https://sequelize.org/master/manual/eager-loading.html
+                    */
+                    attributes: []
+                }
+            }
+        ], 
+        where: {
+            UserId : user.id
+        },
+        offset,
+        limit
+    });
+}
+
+/**
+ * Moved from 'Question' to 'User' to remove circular dependency
+ * https://stackoverflow.com/questions/47538043/sequelize-typeerror-user-hasmany-is-not-a-function
+ */
+User.hasMany(Question, {
+    foreignKey: {
+        type: types.UUID,
+        allowNull: false,
+    },
+
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE'
+});
+
+Question.belongsTo(User, {
+    foreignKey: {
+        type: types.UUID,
+        allowNull: false,
+    },
+
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE'
+});
 
 User.sync().then(() => console.log('User sync successfull'))
 .catch(e => console.log(e));
