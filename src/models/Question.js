@@ -25,6 +25,11 @@ const Question = sequelize.define('Question', {
         allowNull: false,
     }, 
 
+    description: {
+        type: types.STRING(30),
+        allowNull: false,
+    },
+
     notes: {
         type: types.TEXT,
     },  
@@ -54,7 +59,7 @@ Question.addQuestion = async (UserId, questionObj) => {
 Question.findByPkWithTags = async (questionId) => {
     return Question.findByPk(questionId, {
         attributes: [
-            'url', 'name', 'notes', 'UserId', 'difficulty', 'id'
+            'url', 'name', 'notes', 'UserId', 'difficulty', 'id', 'description'
         ],
         include: [{
                 model: Tag,
@@ -70,26 +75,6 @@ Question.findByPkWithTags = async (questionId) => {
         ]
     });
 }
-
-User.hasMany(Question, {
-    foreignKey: {
-        type: types.UUID,
-        allowNull: false,
-    },
-
-    onDelete: 'CASCADE', 
-    onUpdate: 'CASCADE'
-});
-
-Question.belongsTo(User, {
-    foreignKey: {
-        type: types.UUID,
-        allowNull: false,
-    },
-
-    onDelete: 'CASCADE', 
-    onUpdate: 'CASCADE'
-});
 
 Question.sync().then(() => {
     console.log('Question sync successfull');

@@ -1,6 +1,8 @@
 const sequelize = require('../config/db');
 const { Sequelize } = require('sequelize');
 const {DataTypes: types, QueryTypes} = require("sequelize");
+const Question = require('./Question');
+const Tag = require('./Tag');
 const bcrypt = require('bcryptjs');
 
 const User = sequelize.define('User', {
@@ -64,6 +66,10 @@ User.findByUsername = async (username) => {
     });
 }
 
+/**
+ * First INNER JOIN needs to be removed
+ */
+
 User.prototype.findTagStats = async function(offset = 0, limit = 5) {
     const user = this;
     const stats = await sequelize.query(`select count(q.id) as "count", \
@@ -94,6 +100,72 @@ ORDER BY difficulty LIMIT :limit OFFSET :offset;`, {
 
     return stats;
 }
+
+User.prototype.findQuestions = async function(offset = 0, limit = 5) {
+    const user = this;
+
+    return Question.findAll({
+        attributes: [
+            'id', 'url', 'name', 'difficulty', 'description'
+        ],
+        include: [{
+                model: Tag,
+                attributes: ['id', 'name'],
+                through: {
+                    /* 
+                        For removing junction object
+                        https://sequelize.org/master/manual/eager-loading.html
+                    */
+                    attributes: []
+                }
+            }
+        ], 
+        where: {
+            UserId : user.id
+        },
+        offset,
+        limit
+    });
+}
+
+/**
+ * TODO: Test this
+ */
+User.prototype.findSearchedQuestions = async function(prefixText, tags, offset = 0, limit = 5) {
+    const user = this;
+
+    return sequelize.query(`SELECT DISTINCT q.id, q.url, q.name, q.difficulty, q.description \
+from "Questions" as q INNER JOIN "TagMaps" as t1 ON q.id = t1."QuestionId" INNER JOIN "Tags" as t2 \
+ON t1."TagId" = t2.id where "UserId" = :UsedId AND t2.name in (:tags) AND q.name LIKE :prefixText \
+LIMIT :limit OFFSET :offset;`, {
+        replacements:  {limit, UserId: user.id, offset: offset, tags, prefixText},
+        type: QueryTypes.SELECT
+    });
+}
+
+/**
+ * Moved from 'Question' to 'User' to remove circular dependency
+ * https://stackoverflow.com/questions/47538043/sequelize-typeerror-user-hasmany-is-not-a-function
+ */
+User.hasMany(Question, {
+    foreignKey: {
+        type: types.UUID,
+        allowNull: false,
+    },
+
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE'
+});
+
+Question.belongsTo(User, {
+    foreignKey: {
+        type: types.UUID,
+        allowNull: false,
+    },
+
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE'
+});
 
 User.sync().then(() => console.log('User sync successfull'))
 .catch(e => console.log(e));

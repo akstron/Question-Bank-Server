@@ -5,10 +5,10 @@
 const Question = require('../models/Question');
 const Tag = require('../models/Tag');
 const User = require('../models/User');
-const {isValidQuestion, isValidUpdate, getUserQuestionFromDB, getQuestionFromDB, updateQuestion} = require('../utils/question');
+const {addQuestion, getUserQuestionFromDB, getQuestionFromDB, updateQuestion, getUserQuestions} = require('../utils/question');
 const { handleError } = require('../utils/errorHandler');
-const Notification = require('../models/Notification');
 const { addShareQuestionNotification } = require('../utils/notification');
+const { user } = require('pg/lib/defaults');
 
 Question.sync().then(() => {
     console.log("Question sync successfull");
@@ -17,16 +17,7 @@ Question.sync().then(() => {
 
 module.exports.AddQuestion = async (req, res) => {
     try{
-        const {status, error} = isValidQuestion(req.body);
-
-        if(!status){
-            return res.status(400).json({
-                status,
-                error
-            });
-        }
-
-        const question = await Question.addQuestion(req.user.id, req.body);
+        const question = await addQuestion(req.user.id, req.body);
 
         return res.json({
             questionId: question.id,
@@ -35,41 +26,14 @@ module.exports.AddQuestion = async (req, res) => {
         });
     }   
     catch(e){
-        console.log(e);
-
-        return res.status(500).json({
-            status: false, 
-            error: 'Something went wrong'
-        });
+        handleError(e, res);
     }
 }
 
 module.exports.GetQuestions = async (req, res) => {
     try{
-        const user = req.user;
-        const limit = req.query.limit || 10
-
-        const questions = await Question.findAll({
-            attributes: [
-                'id', 'url', 'name', 'difficulty'
-            ],
-            include: [{
-                    model: Tag,
-                    attributes: ['id', 'name'],
-                    through: {
-                        /* 
-                            For removing junction object
-                            https://sequelize.org/master/manual/eager-loading.html
-                        */
-                        attributes: []
-                    }
-                }
-            ], 
-            where: {
-                UserId : user.id
-            },
-            limit
-        });
+        const {offset, limit} = req.query;
+        const questions = await getUserQuestions(req.user, offset, limit);
 
         return res.json({
             status: true,
@@ -77,10 +41,7 @@ module.exports.GetQuestions = async (req, res) => {
         });
     }
     catch(e){
-        return res.status(500).json({
-            status: false,
-            error: 'Something went wrong'
-        });
+        return handleError(e, res);
     }
 }
 

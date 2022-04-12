@@ -7,6 +7,7 @@ const SequelizeStore = require("connect-session-sequelize")(session.Store);
 const sequelize = require('./config/db');
 
 require('./config/passport');
+require('./models/User');
 require('./models/TagMap');
 require('./models/QuestionAccess');
 require('./models/Notification');
