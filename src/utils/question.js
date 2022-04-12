@@ -139,5 +139,5 @@ module.exports.getQuestionFromDB = async (questionId) => {
  */
 
 module.exports.getUserQuestions = async (user, offset, limit) => {
-    return user.getQuestions(offset, limit);
+    return user.findQuestions(offset, limit);
 }
