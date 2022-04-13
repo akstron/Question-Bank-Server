@@ -5,10 +5,9 @@
 const Question = require('../models/Question');
 const Tag = require('../models/Tag');
 const User = require('../models/User');
-const {addQuestion, getUserQuestionFromDB, getQuestionFromDB, updateQuestion, getUserQuestions} = require('../utils/question');
-const { handleError } = require('../utils/errorHandler');
+const {addQuestion, getUserQuestionFromDB, getQuestionFromDB, updateQuestion, getUserQuestions, getSearchedQuestions} = require('../utils/question');
+const { handleError, ClientError } = require('../utils/errorHandler');
 const { addShareQuestionNotification } = require('../utils/notification');
-const { user } = require('pg/lib/defaults');
 
 Question.sync().then(() => {
     console.log("Question sync successfull");
@@ -247,5 +246,30 @@ module.exports.UnshareQuestion = async (req, res) => {
 
     } catch(e){
         handleError(e, res);
+    }
+}
+
+module.exports.GetSearchedQuestions = async (req, res) => {
+    try{
+        var tags;
+        try{
+            tags = JSON.parse(req.query.tags);
+        }
+        catch(e){
+            throw new ClientError('Incorrect tags');
+        }
+
+        if(!Array.isArray(tags)){
+            throw new ClientError('tags should be an array');
+        }
+
+        const {prefixText, limit, offset} = req.query;
+        const questions = await getSearchedQuestions(req.user, prefixText, tags, offset, limit);
+        return res.json({
+            questions
+        })
+    } 
+    catch (e) {
+        return handleError(e, res);
     }
 }

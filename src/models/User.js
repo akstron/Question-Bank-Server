@@ -134,13 +134,28 @@ User.prototype.findQuestions = async function(offset = 0, limit = 5) {
 User.prototype.findSearchedQuestions = async function(prefixText, tags, offset = 0, limit = 5) {
     const user = this;
 
-    return sequelize.query(`SELECT DISTINCT q.id, q.url, q.name, q.difficulty, q.description \
-from "Questions" as q INNER JOIN "TagMaps" as t1 ON q.id = t1."QuestionId" INNER JOIN "Tags" as t2 \
-ON t1."TagId" = t2.id where "UserId" = :UsedId AND t2.name in (:tags) AND q.name LIKE :prefixText \
-LIMIT :limit OFFSET :offset;`, {
-        replacements:  {limit, UserId: user.id, offset: offset, tags, prefixText},
-        type: QueryTypes.SELECT
-    });
+    prefixText += '%';
+    console.log(tags);
+
+//     return sequelize.query(`SELECT DISTINCT q.id, q.url, q.name, q.difficulty, q.description \
+// from "Questions" as q INNER JOIN "TagMaps" as t1 ON q.id = t1."QuestionId" INNER JOIN "Tags" as t2 \
+// ON t1."TagId" = t2.id where "UserId" = :UserId AND t2.name in (:tags) AND q.name LIKE :prefixText \
+// LIMIT :limit OFFSET :offset;`, {
+//         replacements:  {limit, UserId: user.id, offset: offset, tags, prefixText},
+//         type: QueryTypes.SELECT
+//     }
+//     );
+
+return sequelize.query(`select q.id, q.url, q.name, q.difficulty, q.description, \
+array_agg(t2.name) as tags from "Questions" as q INNER JOIN "TagMaps" as t1 \
+ON q.id = t1."QuestionId" INNER JOIN "Tags" as t2 on t1."TagId" = t2.id \
+where "UserId" = :UserId AND EXISTS (SELECT DISTINCT q.id FROM "Questions" \
+INNER JOIN "TagMaps" as t1 on q.id = t1."QuestionId" INNER JOIN "Tags" as t2 on t1."TagId" = t2.id \
+WHERE "UserId" = :UserId AND t2.name IN (:tags)) AND q.name LIKE :prefixText GROUP BY q.id, \
+q.url, q.difficulty, q.description LIMIT :limit OFFSET :offset;`, {
+    replacements:  {limit, UserId: user.id, offset: offset, tags, prefixText},
+    type: QueryTypes.SELECT
+});
 }
 
 /**
