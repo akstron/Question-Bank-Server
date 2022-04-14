@@ -170,6 +170,16 @@ q.url, q.difficulty, q.description LIMIT :limit OFFSET :offset;`, {
  * Moved from 'Question' to 'User' to remove circular dependency
  * https://stackoverflow.com/questions/47538043/sequelize-typeerror-user-hasmany-is-not-a-function
  */
+ Question.belongsTo(User, {
+    foreignKey: {
+        type: types.UUID,
+        allowNull: false,
+    },
+
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE'
+});
+
 User.hasMany(Question, {
     foreignKey: {
         type: types.UUID,
@@ -180,15 +190,12 @@ User.hasMany(Question, {
     onUpdate: 'CASCADE'
 });
 
-Question.belongsTo(User, {
-    foreignKey: {
-        type: types.UUID,
-        allowNull: false,
-    },
-
-    onDelete: 'CASCADE', 
-    onUpdate: 'CASCADE'
-});
+/**
+ * Moved here, so that attribute "UsedId" would be present in "Questions"
+ */
+Question.sync().then(() => {
+    console.log('Question sync successfull');
+}).catch(e => console.log(e));
 
 User.sync().then(() => console.log('User sync successfull'))
 .catch(e => console.log(e));

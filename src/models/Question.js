@@ -1,6 +1,5 @@
 const sequelize = require('../config/db');
 const {DataTypes: types, Sequelize} = require("sequelize");
-const User = require('./User');
 const Tag = require('./Tag');
 
 const Question = sequelize.define('Question', {
@@ -75,9 +74,5 @@ Question.findByPkWithTags = async (questionId) => {
         ]
     });
 }
-
-Question.sync().then(() => {
-    console.log('Question sync successfull');
-}).catch(e => console.log(e));
 
 module.exports = Question;
