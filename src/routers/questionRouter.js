@@ -7,6 +7,9 @@ const { IsAuthenticated } = require('../config/auth');
 const { AddQuestion, GetQuestions, DeleteQuestion, UpdateQuestion, GetTaggedQuestions, GetQuestion, ShareQuestion, UnshareQuestion, GetSearchedAndTaggedQuestions, GetSearchedQuestions} = require('../middlewares/question');
 const { AddTag, AddQuestionTag, DeleteQuestionTag } = require('../middlewares/tag');
 
+
+// add Question URL check pending
+
 router.post('/addQuestion', IsAuthenticated, AddQuestion);
 router.get('/getQuestion', IsAuthenticated, GetQuestion);
 router.get('/getQuestions', IsAuthenticated, GetQuestions);
