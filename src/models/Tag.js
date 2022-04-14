@@ -77,23 +77,19 @@ Tag.getTagIds = async (tags) => {
     return tagIds;
 }
 
-/**
- * TODO: Change it to only include ids
- */
-
-Tag.getTaggedQuestions = async (tags = [], user) => {
+Tag.getTaggedQuestions = async (tags = [], user, offset = 0, limit = 5) => {
     if(tags.length === 0) return [];
 
-    const questions = await sequelize.query(`SELECT DISTINCT q.id, q.url, q.name\
- FROM "TagMaps" AS tm, "Tags" AS t, "Questions" AS q\
- WHERE tm."QuestionId" = q.id\
- AND t.name IN (:tags)\
- AND tm."TagId" = t.id AND q."UserId" = :UserId;`, {
-        replacements:  {tags: tags, UserId: user.id},
-        type: QueryTypes.SELECT
-    });
-  
-    return questions;
+return sequelize.query(`select q.id, q.url, q.name, q.difficulty, q.description, \
+array_agg(t2.name) as tags from "Questions" as q INNER JOIN "TagMaps" as t1 \
+ON q.id = t1."QuestionId" INNER JOIN "Tags" as t2 on t1."TagId" = t2.id \
+where "UserId" = :UserId AND EXISTS (SELECT DISTINCT q.id FROM "Questions" \
+INNER JOIN "TagMaps" as t1 on q.id = t1."QuestionId" INNER JOIN "Tags" as t2 on t1."TagId" = t2.id \
+WHERE "UserId" = :UserId AND t2.name IN (:tags)) GROUP BY q.id, \
+q.url, q.difficulty, q.description LIMIT :limit OFFSET :offset;`, {
+    replacements:  {limit, UserId: user.id, offset: offset, tags},
+    type: QueryTypes.SELECT
+});
 }
 
 Tag.getSearchTags = async (searchText, limit = 5) => {

@@ -5,7 +5,7 @@
 const Question = require('../models/Question');
 const Tag = require('../models/Tag');
 const User = require('../models/User');
-const {addQuestion, getUserQuestionFromDB, getQuestionFromDB, updateQuestion, getUserQuestions, getSearchedQuestions} = require('../utils/question');
+const {addQuestion, getUserQuestionFromDB, getQuestionFromDB, updateQuestion, getUserQuestions, getSearchedAndTaggedQuestions, getSearchedQuestions} = require('../utils/question');
 const { handleError, ClientError } = require('../utils/errorHandler');
 const { addShareQuestionNotification } = require('../utils/notification');
 
@@ -249,7 +249,7 @@ module.exports.UnshareQuestion = async (req, res) => {
     }
 }
 
-module.exports.GetSearchedQuestions = async (req, res) => {
+module.exports.GetSearchedAndTaggedQuestions = async (req, res) => {
     try{
         var tags;
         try{
@@ -264,12 +264,26 @@ module.exports.GetSearchedQuestions = async (req, res) => {
         }
 
         const {prefixText, limit, offset} = req.query;
-        const questions = await getSearchedQuestions(req.user, prefixText, tags, offset, limit);
+        const questions = await getSearchedAndTaggedQuestions(req.user, prefixText, tags, offset, limit);
         return res.json({
+            status: true,
             questions
         })
     } 
     catch (e) {
+        return handleError(e, res);
+    }
+}
+
+module.exports.GetSearchedQuestions = async (req, res) => {
+    try{
+        const {prefixText, limit, offset} = req.query;
+        const questions = await getSearchedQuestions(req.user, prefixText, offset, limit);
+        return res.json({
+            status: true,
+            questions
+        })
+    } catch(e){
         return handleError(e, res);
     }
 }

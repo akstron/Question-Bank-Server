@@ -138,6 +138,10 @@ module.exports.getUserQuestions = async (user, offset, limit) => {
     return user.findQuestions(offset, limit);
 }
 
-module.exports.getSearchedQuestions = async (user, prefixText, tags, offset, limit) => {
-    return user.findSearchedQuestions(prefixText, tags, offset, limit);
+module.exports.getSearchedAndTaggedQuestions = async (user, prefixText, tags, offset, limit) => {
+    return user.findQuestionsByTextAndTags(prefixText, tags, offset, limit);
+}
+
+module.exports.getSearchedQuestions = async (user, prefixText, offset, limit) => {
+    return user.findQuestionsByText(prefixText, offset, limit);
 }
