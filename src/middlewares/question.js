@@ -81,11 +81,11 @@ module.exports.UpdateQuestion = async (req, res) => {
 }
 
 module.exports.GetQuestion = async (req, res) => {
-    const { questionId } = req.query;
+    const { id } = req.query;
     const { user } = req;
 
     try{
-        const question = await getQuestionFromDB(questionId);
+        const question = await getQuestionFromDB(id);
         if(!question){
             return res.status(400).json({
                 status: false,
@@ -110,7 +110,8 @@ module.exports.GetQuestion = async (req, res) => {
             notes: question.notes,
             difficulty: question.difficulty,
             isEditable: (user.id === question.UserId),
-            tags: question.Tags
+            tags: question.Tags,
+            description: question.description
         };
 
         return res.json({
