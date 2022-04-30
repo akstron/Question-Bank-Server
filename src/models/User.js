@@ -131,6 +131,12 @@ User.prototype.findQuestions = async function(offset = 0, limit = 5) {
 /**
  * TODO: Test this
  */
+
+/**
+ * TODO IMPORTANT:
+ * select to_json(array_agg(json_build_object('id', t.id, 'name', t.name))) from "Tags" as t;
+ * use this query to get 'id' and 'name' both
+ */
 User.prototype.findQuestionsByTextAndTags = async function(prefixText, tags, offset = 0, limit = 5) {
     const user = this;
 
@@ -138,7 +144,8 @@ User.prototype.findQuestionsByTextAndTags = async function(prefixText, tags, off
     console.log(tags);
 
 return sequelize.query(`select q.id, q.url, q.name, q.difficulty, q.description, \
-array_agg(t2.name) as tags from "Questions" as q INNER JOIN "TagMaps" as t1 \
+to_json(array_agg(json_build_object('id', t2.id, 'name', t2.name))) as "Tags" from "Questions" \
+as q INNER JOIN "TagMaps" as t1 \
 ON q.id = t1."QuestionId" INNER JOIN "Tags" as t2 on t1."TagId" = t2.id \
 where "UserId" = :UserId AND EXISTS (SELECT DISTINCT q.id FROM "Questions" \
 INNER JOIN "TagMaps" as t1 on q.id = t1."QuestionId" INNER JOIN "Tags" as t2 on t1."TagId" = t2.id \
@@ -155,7 +162,8 @@ User.prototype.findQuestionsByText = async function(prefixText, offset = 0, limi
     prefixText += '%';
 
     return sequelize.query(`select q.id, q.url, q.name, q.difficulty, q.description, \
-array_agg(t2.name) as tags from "Questions" as q INNER JOIN "TagMaps" as t1 \
+to_json(array_agg(json_build_object('id', t2.id, 'name', t2.name))) as "Tags" \
+from "Questions" as q INNER JOIN "TagMaps" as t1 \
 ON q.id = t1."QuestionId" INNER JOIN "Tags" as t2 on t1."TagId" = t2.id \
 where "UserId" = :UserId AND EXISTS (SELECT DISTINCT q.id FROM "Questions" \
 INNER JOIN "TagMaps" as t1 on q.id = t1."QuestionId" INNER JOIN "Tags" as t2 on t1."TagId" = t2.id \

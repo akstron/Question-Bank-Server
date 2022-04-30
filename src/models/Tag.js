@@ -81,7 +81,8 @@ Tag.getTaggedQuestions = async (tags = [], user, offset = 0, limit = 5) => {
     if(tags.length === 0) return [];
 
 return sequelize.query(`select q.id, q.url, q.name, q.difficulty, q.description, \
-array_agg(t2.name) as tags from "Questions" as q INNER JOIN "TagMaps" as t1 \
+to_json(array_agg(json_build_object('id', t2.id, 'name', t2.name))) as "Tags" \
+from "Questions" as q INNER JOIN "TagMaps" as t1 \
 ON q.id = t1."QuestionId" INNER JOIN "Tags" as t2 on t1."TagId" = t2.id \
 where "UserId" = :UserId AND EXISTS (SELECT DISTINCT q.id FROM "Questions" \
 INNER JOIN "TagMaps" as t1 on q.id = t1."QuestionId" INNER JOIN "Tags" as t2 on t1."TagId" = t2.id \
