@@ -185,7 +185,8 @@ q.url, q.difficulty, q.description LIMIT :limit OFFSET :offset;`, {
     },
 
     onDelete: 'CASCADE', 
-    onUpdate: 'CASCADE'
+    onUpdate: 'CASCADE', 
+    hooks: true,
 });
 
 User.hasMany(Question, {
@@ -195,7 +196,8 @@ User.hasMany(Question, {
     },
 
     onDelete: 'CASCADE', 
-    onUpdate: 'CASCADE'
+    onUpdate: 'CASCADE',
+    hooks: true
 });
 
 /**
