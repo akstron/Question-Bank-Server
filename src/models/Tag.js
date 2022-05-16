@@ -113,8 +113,4 @@ Tag.getSearchTags = async (searchText, limit = 5) => {
     return tags;
 }
 
-Tag.sync().then(() => {
-    console.log('Tag synced successfully');
-}).catch((e) => console.log(e));
-
 module.exports = Tag;

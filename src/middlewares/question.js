@@ -1,18 +1,11 @@
 /**
  * Middlewares related to questions
  */
-
-const Question = require('../models/Question');
 const Tag = require('../models/Tag');
 const User = require('../models/User');
 const {addQuestion, getUserQuestionFromDB, getQuestionFromDB, updateQuestion, getUserQuestions, getSearchedAndTaggedQuestions, getSearchedQuestions} = require('../utils/question');
 const { handleError, ClientError } = require('../utils/errorHandler');
 const { addShareQuestionNotification } = require('../utils/notification');
-
-Question.sync().then(() => {
-    console.log("Question sync successfull");
-}).catch((e) => console.log(e));
-
 
 module.exports.AddQuestion = async (req, res) => {
     try{

@@ -33,8 +33,4 @@ Question.belongsToMany(Tag, {
     through: TagMap
 });
 
-TagMap.sync().then(() => 
-console.log('TagMap synced successfully'))
-.catch((e) => console.log(e));
-
 module.exports = TagMap;

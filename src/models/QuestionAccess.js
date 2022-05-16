@@ -35,8 +35,4 @@ Question.belongsToMany(User, {
     as: {singular: 'UserAccess', plural: 'UserAccesses'}
 });
 
-QuestionAccess.sync().then(() => 
-console.log('QuestionAccess synced successfully'))
-.catch((e) => console.log(e));
-
 module.exports = QuestionAccess;

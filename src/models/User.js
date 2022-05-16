@@ -183,10 +183,6 @@ q.url, q.difficulty, q.description LIMIT :limit OFFSET :offset;`, {
         type: types.UUID,
         allowNull: false,
     },
-
-    onDelete: 'CASCADE', 
-    onUpdate: 'CASCADE', 
-    hooks: true,
 });
 
 User.hasMany(Question, {
@@ -203,11 +199,5 @@ User.hasMany(Question, {
 /**
  * Moved here, so that attribute "UsedId" would be present in "Questions"
  */
-Question.sync().then(() => {
-    console.log('Question sync successfull');
-}).catch(e => console.log(e));
-
-User.sync().then(() => console.log('User sync successfull'))
-.catch(e => console.log(e));
 
 module.exports = User;

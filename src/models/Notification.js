@@ -59,8 +59,4 @@ Notification.belongsTo(User, {
     onUpdate: 'CASCADE'
 });
 
-Notification.sync().then(() => {
-    console.log('Notification sync successfull');
-}).catch(e => console.log(e));
-
 module.exports = Notification;

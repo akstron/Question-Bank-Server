@@ -1,11 +1,6 @@
-const User = require('../models/User');
 const passport = require('passport');
 const { registerUser } = require('../utils/user');
 const { handleError } = require('../utils/errorHandler');
-
-User.sync().then(() => {
-    console.log('User sync successfull');
-}).catch(err => console.log(err));
 
 module.exports.Register = async (req, res) => {
     try{
