@@ -128,15 +128,6 @@ User.prototype.findQuestions = async function(offset = 0, limit = 5) {
     });
 }
 
-/**
- * TODO: Test this
- */
-
-/**
- * TODO IMPORTANT:
- * select to_json(array_agg(json_build_object('id', t.id, 'name', t.name))) from "Tags" as t;
- * use this query to get 'id' and 'name' both
- */
 User.prototype.findQuestionsByTextAndTags = async function(prefixText, tags, offset = 0, limit = 5) {
     const user = this;
 
@@ -195,9 +186,5 @@ User.hasMany(Question, {
     onUpdate: 'CASCADE',
     hooks: true
 });
-
-/**
- * Moved here, so that attribute "UsedId" would be present in "Questions"
- */
 
 module.exports = User;

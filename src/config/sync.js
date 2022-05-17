@@ -4,6 +4,7 @@ const TagMap = require('../models/TagMap');
 const Tag = require('../models/Tag');
 const QuestionAccess = require('../models/QuestionAccess');
 const Notification = require('../models/Notification');
+const FriendMap = require('../models/FriendMap');
 
 Question.sync().then(() => {
     console.log('Question sync successfull');
@@ -26,4 +27,8 @@ console.log('QuestionAccess synced successfully'))
 
 Notification.sync().then(() => {
     console.log('Notification sync successfull');
+}).catch(e => console.log(e));
+
+FriendMap.sync().then(() => {
+    console.log('FriendMap synced successfully');
 }).catch(e => console.log(e));
