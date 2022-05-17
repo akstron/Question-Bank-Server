@@ -1,5 +1,5 @@
 const { handleError, ClientError } = require("../utils/errorHandler");
-const { updateUser, getStats } = require("../utils/user");
+const { updateUser, getStats, sendFriendRequest, acceptFriendRequest, isFriend } = require("../utils/user");
 
 module.exports.EditUser = async (req, res) => {
     const { updates } = req.body;
@@ -48,5 +48,57 @@ module.exports.GetStats = async (req, res) => {
     }
     catch(e){
         return handleError(e, res);
+    }
+}
+
+module.exports.SendFriendRequest = async (req, res) => {
+    try{
+        const user = req.user;
+        const { receiverId } = req.body;
+
+        if(!receiverId){
+            throw new ClientError('No receiver id');
+        }
+
+        if(receiverId === user.id){
+            throw new ClientError("Can't send request to yourself");
+        }
+
+        const isAlreadyFriend = await isFriend(user.id, receiverId);
+        
+        if(isAlreadyFriend){
+            throw new ClientError("Can't send a friend request to a friend");
+        }
+
+        await sendFriendRequest(user, receiverId);
+
+        return res.json({
+            status: true,
+            message: 'Request sent successfully!'
+        });
+
+    } catch(e) {
+        handleError(e, res);
+    }
+}
+
+module.exports.AcceptFriendRequest = async (req, res) => {
+    try{
+        const user = req.user;
+        const {senderId} = req.body;
+
+        if(!senderId){
+            throw new ClientError('Sender id missing');
+        }
+
+        await acceptFriendRequest(user, senderId);
+
+        return res.json({
+            status: true,
+            message: 'Request accepted successfully!'
+        });
+
+    } catch(e) {
+        handleError(e, res);
     }
 }

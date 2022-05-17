@@ -26,4 +26,31 @@ const FriendMap = sequelize.define('FriendMap', {
     timestamps: false
 });
 
+
+/**
+ * TODO: Optimize this using query
+ */
+
+ FriendMap.isFriend = async (userId1, userId2) => {
+    let result = await FriendMap.findOne({
+        where: {
+            UserId1: userId1,
+            UserId2: userId2
+        }
+    });
+
+    if(result){
+        return true;
+    }
+
+    result = await FriendMap.findOne({
+        where: {
+            UserId1: userId2, 
+            UserId2: userId1
+        }
+    });
+
+    return (result ? true: false);
+}
+
 module.exports = FriendMap;

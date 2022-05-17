@@ -1,5 +1,7 @@
+const FriendMap = require("../models/FriendMap");
 const User = require("../models/User");
 const {ClientError} = require('../utils/errorHandler');
+const { isUUIDv4 } = require("./validator");
 
 const validUserParameters = ['username', 'fullName', 'bio','email', 'password'];
 const validUserUpdateParameters = ['fullName', 'bio', 'password'];
@@ -105,4 +107,50 @@ module.exports.getStats = async (user, statOptions) => {
     }
 
     return stats;
+}
+
+module.exports.sendFriendRequest = async (from, toId) => {
+    if(!from){
+        throw new ClientError('No sender found');
+    }
+
+    if(!isUUIDv4(toId)){
+        throw new ClientError('Invalid receiver id');
+    }
+
+    /**
+     * TODO: SEND NOTIFICATION
+     */
+
+    const isFriendRequestAlreadySent = await from.isFriendRequestSent(toId);
+    if(isFriendRequestAlreadySent){
+        throw new ClientError('Friend request already sent');
+    }
+
+    return from.addFriendRequest(toId);
+}
+
+module.exports.acceptFriendRequest = async (to, fromId) => {
+    if(!to){
+        throw new ClientError('No receiver found');
+    }
+
+    if(!isUUIDv4(fromId)){
+        throw new ClientError('Invalid sender id');
+    }
+
+    const from = await User.findByPk(fromId);
+    const toId = to.id;
+
+    const isFriendRequestSent = await from.isFriendRequestSent(toId);
+    if(!isFriendRequestSent){
+        throw new ClientError('No friend request found');
+    }
+
+    await to.removeFriendRequest(fromId);
+    return to.addFriend(fromId);
+}
+
+module.exports.isFriend = async (userId1, userId2) => {
+    return FriendMap.isFriend(userId1, userId2);
 }

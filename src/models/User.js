@@ -1,9 +1,11 @@
 const sequelize = require('../config/db');
-const { Sequelize } = require('sequelize');
+const { Sequelize, HostNotFoundError } = require('sequelize');
 const {DataTypes: types, QueryTypes} = require("sequelize");
 const Question = require('./Question');
 const Tag = require('./Tag');
 const bcrypt = require('bcryptjs');
+const FriendRequest = require('./FriendRequest');
+const FriendMap = require('./FriendMap');
 
 const User = sequelize.define('User', {
     id: {
@@ -163,6 +165,44 @@ q.url, q.difficulty, q.description LIMIT :limit OFFSET :offset;`, {
     replacements:  {limit, UserId: user.id, offset: offset, prefixText},
     type: QueryTypes.SELECT
 });
+}
+
+User.prototype.isFriendRequestSent = async function(toId){
+    const user = this;
+    const friendRequest = await FriendRequest.findOne({
+        where: {
+            From: user.id, 
+            To: toId
+        }
+    });
+
+    return (friendRequest ? true : false);
+}
+
+User.prototype.addFriendRequest = async function(toId){
+    const user = this;
+    return FriendRequest.create({
+        From: user.id, 
+        To: toId
+    });
+}
+
+User.prototype.removeFriendRequest = async function(fromId){
+    const user = this;
+    return FriendRequest.destroy({
+        where: {
+            From: fromId, 
+            To: user.id
+        }
+    });
+}
+
+User.prototype.addFriend = async function(friendId){
+    const user = this;
+    return FriendMap.create({
+        UserId1: user.id,
+        UserId2: friendId
+    });
 }
 
 /**
