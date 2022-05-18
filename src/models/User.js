@@ -205,6 +205,22 @@ User.prototype.addFriend = async function(friendId){
     });
 }
 
+User.prototype.findFriends = async function(prefixFullName = '', prefixUsername = '', prefixEmail = '', offset = 0, limit = 5){
+    const user = this;
+    prefixFullName += '%';
+    prefixUsername += '%';
+    prefixEmail += '%';
+
+    return sequelize.query(`SELECT id, username, "fullName", bio, email from "Users" AS u WHERE u.id IN \
+(SELECT "UserId1" AS friendId from "FriendMaps" WHERE "UserId2" = :id \
+UNION SELECT "UserId2" AS friendId from "FriendMaps" WHERE "UserId1" = :id) \
+AND u.email LIKE :prefixEmail AND u.username LIKE :prefixUsername AND \
+u."fullName" LIKE :prefixFullName LIMIT :limit OFFSET :offset;`, {
+        replacements:  {limit, id: user.id, offset: offset, prefixFullName, prefixEmail, prefixUsername},
+        type: QueryTypes.SELECT
+    });
+}
+
 /**
  * Moved from 'Question' to 'User' to remove circular dependency
  * https://stackoverflow.com/questions/47538043/sequelize-typeerror-user-hasmany-is-not-a-function

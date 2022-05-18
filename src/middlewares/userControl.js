@@ -1,5 +1,5 @@
 const { handleError, ClientError } = require("../utils/errorHandler");
-const { updateUser, getStats, sendFriendRequest, acceptFriendRequest, isFriend, rejectFriendRequest } = require("../utils/user");
+const { updateUser, getStats, sendFriendRequest, acceptFriendRequest, isFriend, rejectFriendRequest, getFriends } = require("../utils/user");
 
 module.exports.EditUser = async (req, res) => {
     const { updates } = req.body;
@@ -109,6 +109,21 @@ module.exports.RespondFriendRequest = async (req, res) => {
         });
 
     } catch(e) {
+        handleError(e, res);
+    }
+}
+
+module.exports.GetFriends = async (req, res) => {
+    try{
+        const user = req.user;
+        const {prefixEmail, prefixFullName, prefixUsername, limit, offset} = req.query;
+        const friends = await getFriends(user, prefixFullName, prefixUsername, prefixEmail, offset, limit);
+        return res.json({
+            status: true, 
+            message: 'Friends found successfully',
+            friends
+        });
+    } catch(e){
         handleError(e, res);
     }
 }

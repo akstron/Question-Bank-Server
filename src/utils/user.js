@@ -171,6 +171,10 @@ module.exports.rejectFriendRequest = async (to, fromId) => {
     return to.removeFriendRequest(fromId);
 }
 
+module.exports.getFriends = async (user, prefixFullName, prefixUsername, prefixEmail, offset, limit) => {
+    return user.findFriends(prefixFullName, prefixUsername, prefixEmail, offset, limit);
+}
+
 module.exports.isFriend = async (userId1, userId2) => {
     return FriendMap.isFriend(userId1, userId2);
 }
