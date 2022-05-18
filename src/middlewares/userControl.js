@@ -1,5 +1,5 @@
 const { handleError, ClientError } = require("../utils/errorHandler");
-const { updateUser, getStats, sendFriendRequest, acceptFriendRequest, isFriend } = require("../utils/user");
+const { updateUser, getStats, sendFriendRequest, acceptFriendRequest, isFriend, rejectFriendRequest } = require("../utils/user");
 
 module.exports.EditUser = async (req, res) => {
     const { updates } = req.body;
@@ -82,20 +82,30 @@ module.exports.SendFriendRequest = async (req, res) => {
     }
 }
 
-module.exports.AcceptFriendRequest = async (req, res) => {
+module.exports.RespondFriendRequest = async (req, res) => {
     try{
         const user = req.user;
-        const {senderId} = req.body;
+        const {senderId, response} = req.body;
 
         if(!senderId){
             throw new ClientError('Sender id missing');
         }
 
-        await acceptFriendRequest(user, senderId);
+        if(!response){
+            throw new ClientError('No response found');
+        }
+
+        if(response === 'accept'){
+            await acceptFriendRequest(user, senderId);
+        } else if (response === 'reject'){
+            await rejectFriendRequest(user, senderId);
+        } else {
+            throw new ClientError('Response can only be accept or reject');
+        }
 
         return res.json({
             status: true,
-            message: 'Request accepted successfully!'
+            message: 'Responded successfully!'
         });
 
     } catch(e) {

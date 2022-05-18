@@ -5,7 +5,7 @@
 const router = require('express').Router();
 const {IsAuthenticated} = require('../config/auth');
 const { GetNotifications, DeleteNotification } = require('../middlewares/notification');
-const { EditUser, GetStats, SendFriendRequest, AcceptFriendRequest } = require('../middlewares/userControl');
+const { EditUser, GetStats, SendFriendRequest, RespondFriendRequest } = require('../middlewares/userControl');
 
 router.put('/edit', IsAuthenticated, EditUser);
 router.get('/getNotifications', IsAuthenticated, GetNotifications);
@@ -18,6 +18,6 @@ router.delete('/deleteNotification', IsAuthenticated, DeleteNotification);
 */
 router.get('/getStats', IsAuthenticated, GetStats);
 router.post('/sendFriendRequest', IsAuthenticated, SendFriendRequest);
-router.post('/acceptFriendRequest', IsAuthenticated, AcceptFriendRequest);
+router.post('/respondFriendRequest', IsAuthenticated, RespondFriendRequest);
 
 module.exports = router;

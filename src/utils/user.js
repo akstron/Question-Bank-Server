@@ -151,6 +151,26 @@ module.exports.acceptFriendRequest = async (to, fromId) => {
     return to.addFriend(fromId);
 }
 
+module.exports.rejectFriendRequest = async (to, fromId) => {
+    if(!to){
+        throw new ClientError('No receiver found');
+    }
+
+    if(!isUUIDv4(fromId)){
+        throw new ClientError('Invalid sender id');
+    }
+
+    const from = await User.findByPk(fromId);
+    const toId = to.id;
+
+    const isFriendRequestSent = await from.isFriendRequestSent(toId);
+    if(!isFriendRequestSent){
+        throw new ClientError('No friend request found');
+    }
+
+    return to.removeFriendRequest(fromId);
+}
+
 module.exports.isFriend = async (userId1, userId2) => {
     return FriendMap.isFriend(userId1, userId2);
 }
