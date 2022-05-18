@@ -78,7 +78,7 @@ module.exports.Logout = (req, res) => {
     });
 };
 
-module.exports.GetUser = (req, res) => {
+module.exports.Me = (req, res) => {
     try{
         const user = req.user;
         const userObj = {

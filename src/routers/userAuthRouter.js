@@ -3,7 +3,7 @@
  */
 
 const router = require('express').Router();
-const {Register, Login, Logout, CheckLoggedIn, GetUser} = require('../middlewares/userAuth');
+const {Register, Login, Logout, CheckLoggedIn, Me} = require('../middlewares/userAuth');
 const {IsAuthenticated} = require('../config/auth');
 
 /**
@@ -12,7 +12,7 @@ const {IsAuthenticated} = require('../config/auth');
 router.post('/register', Register);
 router.post('/login', Login);
 router.post('/logout', IsAuthenticated, Logout);
-router.get('/getUser', IsAuthenticated, GetUser);
+router.get('/me', IsAuthenticated, Me);
 router.get('/checkLoggedIn', IsAuthenticated, CheckLoggedIn);
 
 module.exports = router;

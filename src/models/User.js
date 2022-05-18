@@ -1,5 +1,5 @@
 const sequelize = require('../config/db');
-const { Sequelize, HostNotFoundError } = require('sequelize');
+const { Sequelize } = require('sequelize');
 const {DataTypes: types, QueryTypes} = require("sequelize");
 const Question = require('./Question');
 const Tag = require('./Tag');
@@ -217,6 +217,19 @@ UNION SELECT "UserId2" AS friendId from "FriendMaps" WHERE "UserId1" = :id) \
 AND u.email LIKE :prefixEmail AND u.username LIKE :prefixUsername AND \
 u."fullName" LIKE :prefixFullName LIMIT :limit OFFSET :offset;`, {
         replacements:  {limit, id: user.id, offset: offset, prefixFullName, prefixEmail, prefixUsername},
+        type: QueryTypes.SELECT
+    });
+}
+
+User.findByPrefixTexts = async (prefixFullName = '', prefixUsername = '', prefixEmail = '', offset = 0, limit = 5) => {
+    prefixEmail += '%';
+    prefixFullName += '%';
+    prefixUsername += '%';
+    
+    return sequelize.query(`SELECT id, username, "fullName", bio, email from "Users" AS u WHERE \
+u.email LIKE :prefixEmail AND u.username LIKE :prefixUsername AND \
+u."fullName" LIKE :prefixFullName LIMIT :limit OFFSET :offset;`, {
+        replacements:  {limit, offset: offset, prefixFullName, prefixEmail, prefixUsername},
         type: QueryTypes.SELECT
     });
 }

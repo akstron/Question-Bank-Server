@@ -178,3 +178,18 @@ module.exports.getFriends = async (user, prefixFullName, prefixUsername, prefixE
 module.exports.isFriend = async (userId1, userId2) => {
     return FriendMap.isFriend(userId1, userId2);
 }
+
+module.exports.getUserById = async (id) => {
+    const user = await User.findByPk(id);
+    return {
+        id: user.id,
+        username: user.username,
+        fullName: user.fullName,
+        email: user.email,
+        bio: user.bio
+    };
+}
+
+module.exports.getUsers = async (prefixFullName, prefixUsername, prefixEmail, offset, limit) => {
+    return User.findByPrefixTexts(prefixFullName, prefixUsername, prefixEmail, offset, limit);
+}
