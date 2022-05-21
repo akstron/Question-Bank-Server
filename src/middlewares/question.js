@@ -102,6 +102,7 @@ module.exports.GetQuestion = async (req, res) => {
             name: question.name, 
             notes: question.notes,
             difficulty: question.difficulty,
+            visibility: question.visibility,
             isEditable: (user.id === question.UserId),
             tags: question.Tags,
             description: question.description

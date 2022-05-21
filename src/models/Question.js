@@ -66,7 +66,7 @@ Question.addQuestion = async (UserId, questionObj) => {
 Question.findByPkWithTags = async (questionId) => {
     return Question.findByPk(questionId, {
         attributes: [
-            'url', 'name', 'notes', 'UserId', 'difficulty', 'id', 'description'
+            'url', 'name', 'notes', 'UserId', 'difficulty', 'id', 'description', 'visibility'
         ],
         include: [{
                 model: Tag,

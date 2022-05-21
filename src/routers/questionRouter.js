@@ -14,6 +14,9 @@ router.post('/addQuestion', IsAuthenticated, AddQuestion);
 router.get('/getQuestion', IsAuthenticated, GetQuestion);
 router.get('/getQuestions', IsAuthenticated, GetQuestions);
 router.delete('/deleteQuestion', IsAuthenticated, DeleteQuestion);
+/**
+ * TODO: updates are not checking constraints
+ */
 router.put('/updateQuestion', IsAuthenticated, UpdateQuestion);
 router.post('/addTag', IsAuthenticated, AddTag);
 router.put('/addQuestionTags', IsAuthenticated, AddQuestionTag);
