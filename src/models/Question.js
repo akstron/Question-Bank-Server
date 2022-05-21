@@ -36,6 +36,14 @@ const Question = sequelize.define('Question', {
     difficulty: {
         type: types.INTEGER, 
         allowNull: false,
+    }, 
+
+    visibility: {
+        type: types.STRING(8), 
+        /**
+         * me, friends, global, specific
+         */
+        allowNull: false
     }
 }, {
     timestamps: true

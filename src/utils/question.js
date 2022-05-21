@@ -1,7 +1,9 @@
 const Question = require('../models/Question');
 const { isUUID } = require('validator');
 const { ClientError } = require('./errorHandler');
-const validQuestionParameters = ['url', 'name', 'notes', 'tags', 'difficulty', 'description'];
+const QuestionAccess = require('../models/QuestionAccess');
+const validQuestionParameters = ['url', 'name', 'notes', 'tags', 'difficulty', 'description', 'visibility'];
+const validVisibilities = ['me', 'friends', 'global', 'specific'];
 
 const isValidQuestion = (question) => {
     const keys = Object.keys(question);
@@ -39,6 +41,21 @@ const isValidQuestion = (question) => {
         return {
             status: false,
             error: 'Description missing'
+        };
+    }
+
+    if(!question.visibility){
+        return {
+            status: false,
+            error: 'Visibility missing'
+        }
+    }
+
+    const isValidVisibility = validVisibilities.includes(question.visibility);
+    if(!isValidVisibility){
+        return {
+            status: false,
+            error: 'Invalid visibility'
         };
     }
 

@@ -45,6 +45,7 @@ Tag.addTag = async (tag) => {
 /**
  * Get tag ids from tag names. 
  * WARNING: It creates tags when tag not found!!!
+ * TODO: Optimize the following
  */
 
 Tag.getTagIds = async (tags) => {
