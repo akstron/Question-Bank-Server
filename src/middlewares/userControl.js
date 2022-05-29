@@ -1,5 +1,6 @@
 const { handleError, ClientError } = require("../utils/errorHandler");
-const { updateUser, getStats, sendFriendRequest, acceptFriendRequest, isFriend, rejectFriendRequest, getFriends, getUserById, getUsers } = require("../utils/user");
+const { updateUser, getStats, sendFriendRequest, acceptFriendRequest, isFriend, rejectFriendRequest, getFriends, getUserById, getUsers, createResponseUserObject } = require("../utils/user");
+const { isUUIDv4 } = require("../utils/validator");
 
 module.exports.EditUser = async (req, res) => {
     const { updates } = req.body;
@@ -30,17 +31,24 @@ module.exports.GetStats = async (req, res) => {
         }
         catch(e){
             console.log(e);
-            return res.status(400).json({
-                status: false,
-                error: 'Incorrect query string'
-            });
+            throw new ClientError('Incorrect query string');
+        }
+
+        const { userId } = req.query;
+        
+        if(!userId){
+            throw new ClientError('User id missing');
+        }
+
+        if(!isUUIDv4(userId)){
+            throw new ClientError('Invalid user id');
         }
 
         if(!Array.isArray(options)){
             throw new ClientError('stats should be an array');
         }
 
-        const result = await getStats(req.user, options);
+        const result = await getStats(userId, options);
         return res.json({
             status: true,
             stats: result
@@ -130,12 +138,13 @@ module.exports.GetFriends = async (req, res) => {
 
 module.exports.GetUser = async (req, res) => {
     try{
-        const { id } = req.query;
-        const user = await getUserById(id);
+        const { userId } = req.query;
+        const user = await getUserById(userId);
+        const userObj = createResponseUserObject(user);
         return res.json({
             status: true,
             message: "User found successfully", 
-            user
+            user: userObj
         });
 
     } catch (e){

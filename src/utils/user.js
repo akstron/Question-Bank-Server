@@ -1,6 +1,7 @@
 const FriendMap = require("../models/FriendMap");
 const User = require("../models/User");
 const {ClientError} = require('../utils/errorHandler');
+const { createResponseQuestionObject } = require("./question");
 const { isUUIDv4 } = require("./validator");
 
 const validUserParameters = ['username', 'fullName', 'bio','email', 'password'];
@@ -83,7 +84,10 @@ module.exports.registerUser = async (user) => {
     return registerdUserObj;
 }
 
-module.exports.getStats = async (user, statOptions) => {
+/**
+ * Get statistics of any user here using userId
+ */
+module.exports.getStats = async (userId, statOptions) => {
     if(!Array.isArray(statOptions)){
         throw new ClientError('options should be an array');
     }
@@ -91,6 +95,12 @@ module.exports.getStats = async (user, statOptions) => {
     const isValidTypes = statOptions.every((obj) => validStatsType.includes(obj.type));
     if(!isValidTypes){
         throw new ClientError('Invalid statistic types');
+    }
+
+    const user = await User.findByPk(userId);
+
+    if(!user){
+        throw new ClientError("Invalid user");
     }
 
     const stats = []; 
@@ -179,8 +189,7 @@ module.exports.isFriend = async (userId1, userId2) => {
     return FriendMap.isFriend(userId1, userId2);
 }
 
-module.exports.getUserById = async (id) => {
-    const user = await User.findByPk(id);
+module.exports.createResponseUserObject = (user) => {
     return {
         id: user.id,
         username: user.username,
@@ -188,6 +197,10 @@ module.exports.getUserById = async (id) => {
         email: user.email,
         bio: user.bio
     };
+}
+
+module.exports.getUserById = async (id) => {
+    return User.findByPk(id);
 }
 
 module.exports.getUsers = async (prefixFullName, prefixUsername, prefixEmail, offset, limit) => {
