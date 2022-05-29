@@ -3,7 +3,7 @@
  */
 const Tag = require('../models/Tag');
 const User = require('../models/User');
-const {addQuestion, getUserQuestionFromDB, getQuestionFromDB, updateQuestion, getUserQuestions, getSearchedAndTaggedQuestions, getSearchedQuestions} = require('../utils/question');
+const {addQuestion, getUserQuestionFromDB, getQuestionFromDB, updateQuestion, getUserQuestions, getSearchedAndTaggedQuestions, getSearchedQuestions, createResponseQuestionObject} = require('../utils/question');
 const { handleError, ClientError } = require('../utils/errorHandler');
 const { addShareQuestionNotification } = require('../utils/notification');
 
@@ -61,11 +61,12 @@ module.exports.UpdateQuestion = async (req, res) => {
         const {questionId, updates} = req.body;
         
         const question = await updateQuestion(user, questionId, updates);
+        const questionObj = createResponseQuestionObject(question);
 
         return res.json({
             status: true,
             message: "Question updated",
-            question
+            question: questionObj
         });
     }
     catch(e){
@@ -96,17 +97,19 @@ module.exports.GetQuestion = async (req, res) => {
             }
         }
 
-        const questionObj = {
-            id: question.id,
-            url: question.url,
-            name: question.name, 
-            notes: question.notes,
-            difficulty: question.difficulty,
-            visibility: question.visibility,
-            isEditable: (user.id === question.UserId),
-            tags: question.Tags,
-            description: question.description
-        };
+        // const questionObj = {
+        //     id: question.id,
+        //     url: question.url,
+        //     name: question.name, 
+        //     notes: question.notes,
+        //     difficulty: question.difficulty,
+        //     visibility: question.visibility,
+        //     isEditable: (user.id === question.UserId),
+        //     tags: question.Tags,
+        //     description: question.description
+        // };
+
+        const questionObj = createResponseQuestionObject(question, (user.id === question.UserId));
 
         return res.json({
             status: true,

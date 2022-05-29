@@ -1,9 +1,24 @@
 const Question = require('../models/Question');
+const Tag = require('../models/Tag');
 const { isUUID } = require('validator');
 const { ClientError } = require('./errorHandler');
-const QuestionAccess = require('../models/QuestionAccess');
 const validQuestionParameters = ['url', 'name', 'notes', 'tags', 'difficulty', 'description', 'visibility'];
+const validQuestionUpdateParameters = ['url', 'name', 'notes', 'addTagNames', 'removeTagIds', 'difficulty', 'description', 'visibility'];
 const validVisibilities = ['me', 'friends', 'global', 'specific'];
+
+module.exports.createResponseQuestionObject = (question, isEditable) => {
+    return {
+        id: question.id,
+        url: question.url,
+        name: question.name, 
+        notes: question.notes,
+        difficulty: question.difficulty,
+        visibility: question.visibility,
+        isEditable,
+        tags: question.Tags,
+        description: question.description
+    };
+}
 
 const isValidQuestion = (question) => {
     const keys = Object.keys(question);
@@ -66,7 +81,7 @@ const isValidQuestion = (question) => {
 
 const isValidUpdate = (question) => {
     const keys = Object.keys(question);
-    const isValid = keys.every((key) => validQuestionParameters.includes(key));
+    const isValid = keys.every((key) => validQuestionUpdateParameters.includes(key));
 
     if(!isValid){
         return {
@@ -114,6 +129,32 @@ const getUserQuestionFromDB = async (questionId, user) => {
 
 module.exports.getUserQuestionFromDB = getUserQuestionFromDB;
 
+const handleTagUpdates = async (question, {addTagNames, removeTagIds}) => {
+    if(addTagNames){
+        const tagIds =  await Tag.getTagIds(addTagNames);
+        await question.addTags(tagIds);
+    }
+
+    if(removeTagIds){
+        await question.removeTags(removeTagIds);
+    }
+} 
+
+// Return entire question along with tags
+const getQuestionFromDB = async (questionId) => {    
+    if(!questionId){
+        throw new ClientError('Question id missing');
+    }
+
+    if(!isUUID(questionId, [4])){
+        throw new ClientError('Incorrect question id');
+    }
+
+    return Question.findByPkWithTags(questionId);
+}
+
+module.exports.getQuestionFromDB = getQuestionFromDB;
+
 module.exports.updateQuestion = async (user, questionId, updates) => {
     if(!questionId){
         throw new ClientError('Question id missing');
@@ -135,21 +176,12 @@ module.exports.updateQuestion = async (user, questionId, updates) => {
         question[key] = value;    
     }
 
+    await handleTagUpdates(question, updates);
     await question.save();
-    return question;
+    return getQuestionFromDB(questionId);
 }
 
-module.exports.getQuestionFromDB = async (questionId) => {    
-    if(!questionId){
-        throw new ClientError('Question id missing');
-    }
 
-    if(!isUUID(questionId, [4])){
-        throw new ClientError('Incorrect question id');
-    }
-
-    return Question.findByPkWithTags(questionId);
-}
 
 module.exports.getUserQuestions = async (user, offset, limit) => {
     return user.findQuestions(offset, limit);
