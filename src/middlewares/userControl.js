@@ -1,5 +1,5 @@
 const { handleError, ClientError } = require("../utils/errorHandler");
-const { updateUser, getStats, sendFriendRequest, acceptFriendRequest, isFriend, rejectFriendRequest, getFriends, getUserById, getUsers, createResponseUserObject } = require("../utils/user");
+const { updateUser, getStats, sendFriendRequest, acceptFriendRequest, isFriend, rejectFriendRequest, getFriends, getUserById, getUsers, createResponseUserObject, getFriendshipStatus } = require("../utils/user");
 const { isUUIDv4 } = require("../utils/validator");
 
 module.exports.EditUser = async (req, res) => {
@@ -141,6 +141,10 @@ module.exports.GetUser = async (req, res) => {
         const { userId } = req.query;
         const user = await getUserById(userId);
         const userObj = createResponseUserObject(user);
+        /**
+         * Change this to hande friendship status between same user
+         */
+        userObj.friendshipStatus = await getFriendshipStatus(req.user, user);
         return res.json({
             status: true,
             message: "User found successfully", 

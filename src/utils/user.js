@@ -189,13 +189,14 @@ module.exports.isFriend = async (userId1, userId2) => {
     return FriendMap.isFriend(userId1, userId2);
 }
 
-module.exports.createResponseUserObject = (user) => {
+module.exports.createResponseUserObject = (user, additionalData = {}) => {
     return {
         id: user.id,
         username: user.username,
         fullName: user.fullName,
         email: user.email,
-        bio: user.bio
+        bio: user.bio,
+        ...additionalData
     };
 }
 
@@ -205,4 +206,24 @@ module.exports.getUserById = async (id) => {
 
 module.exports.getUsers = async (prefixFullName, prefixUsername, prefixEmail, offset, limit) => {
     return User.findByPrefixTexts(prefixFullName, prefixUsername, prefixEmail, offset, limit);
+}
+
+module.exports.getFriendshipStatus = async (currentUser, otherUser) => {
+    const isFriend = await currentUser.isFriend(otherUser.id);
+    if(isFriend) return 'friend';
+    
+    /**
+     * TODO: OPTIMIZE THIS LATER
+     */
+    const requestFromCurrentToOther = await currentUser.isFriendRequestSent(otherUser.id);
+    if(requestFromCurrentToOther){
+        return 'friend request sent';
+    }
+
+    const requestFromOtherToCurrent = await otherUser.isFriendRequestSent(currentUser.id);
+    if(requestFromOtherToCurrent){
+        return 'friend request received';
+    }
+
+    return 'not friend';
 }

@@ -221,6 +221,23 @@ u."fullName" LIKE :prefixFullName LIMIT :limit OFFSET :offset;`, {
     });
 }
 
+/**
+ * NOT TESTED
+ */
+User.prototype.isFriend = async function (otherUserId) {
+    const currentUserId = this.id;
+    const is = await sequelize.query(`SELECT "UserId1" AS friendId from "FriendMaps" WHERE "UserId2" = :currentUserId \
+AND "UserId1" = :otherUserId \
+UNION SELECT "UserId2" AS friendId from "FriendMaps" WHERE "UserId1" = :currentUserId \
+AND "UserId2" = :otherUserId`, {
+    replacements: {currentUserId, otherUserId}, 
+    type: QueryTypes.SELECT
+});
+
+    console.log(is);
+    return (is.length !== 0);
+}
+
 User.findByPrefixTexts = async (prefixFullName = '', prefixUsername = '', prefixEmail = '', offset = 0, limit = 5) => {
     prefixEmail += '%';
     prefixFullName += '%';
