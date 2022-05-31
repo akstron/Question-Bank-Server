@@ -203,6 +203,23 @@ module.exports.rejectFriendRequest = async (to, fromId) => {
     return to.removeFriendRequest(fromId);
 }
 
+module.exports.removeFriend = async (user, friendId) => {
+    if(!user){
+        throw new ClientError('No receiver found');
+    }
+
+    if(!isUUIDv4(friendId)){
+        throw new ClientError('Invalid friend id');
+    }
+
+    const isFriend = await FriendMap.isFriend(user.id, friendId);
+    if(!isFriend){
+        throw new ClientError('No friend found');
+    }
+
+    return user.removeFriend(friendId);
+}
+
 module.exports.getFriends = async (user, prefixFullName, prefixUsername, prefixEmail, offset, limit) => {
     return user.findFriends(prefixFullName, prefixUsername, prefixEmail, offset, limit);
 }

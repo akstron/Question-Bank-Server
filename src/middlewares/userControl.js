@@ -1,5 +1,5 @@
 const { handleError, ClientError } = require("../utils/errorHandler");
-const { updateUser, getStats, sendFriendRequest, acceptFriendRequest, isFriend, rejectFriendRequest, getFriends, getUserById, getUsers, createResponseUserObject, getFriendshipStatus, unsendFriendRequest } = require("../utils/user");
+const { updateUser, getStats, sendFriendRequest, acceptFriendRequest, isFriend, rejectFriendRequest, getFriends, getUserById, getUsers, createResponseUserObject, getFriendshipStatus, unsendFriendRequest, removeFriend } = require("../utils/user");
 const { isUUIDv4 } = require("../utils/validator");
 
 module.exports.EditUser = async (req, res) => {
@@ -135,6 +135,27 @@ module.exports.RespondFriendRequest = async (req, res) => {
         return res.json({
             status: true,
             message: 'Responded successfully!'
+        });
+
+    } catch(e) {
+        handleError(e, res);
+    }
+}
+
+module.exports.RemoveFriend = async (req, res) => {
+    try{
+        const user = req.user;
+        const { friendId } = req.body;
+
+        if(!friendId){
+            throw new ClientError('No receiver id');
+        }
+
+        await removeFriend(user, friendId);
+
+        return res.json({
+            status: true,
+            message: 'unfriend successfully!'
         });
 
     } catch(e) {

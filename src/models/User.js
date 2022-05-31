@@ -205,6 +205,15 @@ User.prototype.addFriend = async function(friendId){
     });
 }
 
+User.prototype.removeFriend = async function(friendId){
+    const user = this;
+    return sequelize.query(`delete from "FriendMaps" where ("UserId1" = :userId AND \
+"UserId2" = :friendId) OR ("UserId1" = :friendId AND "UserId2" = :userId);`, {
+    replacements: {userId: user.id, friendId},
+    type: QueryTypes.DELETE
+});
+}
+
 User.prototype.findFriends = async function(prefixFullName = '', prefixUsername = '', prefixEmail = '', offset = 0, limit = 5){
     const user = this;
     prefixFullName += '%';
