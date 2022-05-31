@@ -222,8 +222,9 @@ u."fullName" LIKE :prefixFullName LIMIT :limit OFFSET :offset;`, {
 }
 
 /**
- * NOT TESTED
+ * REMOVING AS METHOD ALREADY EXIST IN FriendMap
  */
+/*
 User.prototype.isFriend = async function (otherUserId) {
     const currentUserId = this.id;
     const is = await sequelize.query(`SELECT "UserId1" AS friendId from "FriendMaps" WHERE "UserId2" = :currentUserId \
@@ -237,6 +238,7 @@ AND "UserId2" = :otherUserId`, {
     console.log(is);
     return (is.length !== 0);
 }
+*/
 
 User.findByPrefixTexts = async (prefixFullName = '', prefixUsername = '', prefixEmail = '', offset = 0, limit = 5) => {
     prefixEmail += '%';
