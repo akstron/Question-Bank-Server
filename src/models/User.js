@@ -149,22 +149,37 @@ q.url, q.difficulty, q.description LIMIT :limit OFFSET :offset;`, {
 });
 }
 
+/**
+ * TODO: Update below query:
+ * EXIST statement not required
+ */
 User.prototype.findQuestionsByText = async function(prefixText, offset = 0, limit = 5){
     const user = this;
 
     prefixText += '%';
 
-    return sequelize.query(`select q.id, q.url, q.name, q.difficulty, q.description, \
+    const result = await sequelize.query(`select q.id, q.url, q.name, q.difficulty, q.description, q.visibility, \
 to_json(array_agg(json_build_object('id', t2.id, 'name', t2.name))) as "Tags" \
-from "Questions" as q INNER JOIN "TagMaps" as t1 \
-ON q.id = t1."QuestionId" INNER JOIN "Tags" as t2 on t1."TagId" = t2.id \
-where "UserId" = :UserId AND EXISTS (SELECT DISTINCT q.id FROM "Questions" \
-INNER JOIN "TagMaps" as t1 on q.id = t1."QuestionId" INNER JOIN "Tags" as t2 on t1."TagId" = t2.id \
-WHERE "UserId" = :UserId) AND q.name LIKE :prefixText GROUP BY q.id, \
-q.url, q.difficulty, q.description LIMIT :limit OFFSET :offset;`, {
+from "Questions" as q LEFT JOIN "TagMaps" as t1 \
+ON q.id = t1."QuestionId" LEFT JOIN "Tags" as t2 on t1."TagId" = t2.id \
+where q."UserId" = :UserId AND q.name LIKE :prefixText GROUP BY q.id, \
+q.url, q.difficulty, q.description, q.visibility LIMIT :limit OFFSET :offset;`, {
     replacements:  {limit, UserId: user.id, offset: offset, prefixText},
     type: QueryTypes.SELECT
 });
+
+    /**
+     * Because of the query, if a question don't have any tag, its "Tags" attribute will contain
+     * an element with id and name equaals null.
+     * Below code is to rectify it
+     */
+    result.forEach(row => {
+        if(row.Tags[0].id === null){
+            row.Tags = []
+        }
+    });
+
+    return result;
 }
 
 User.prototype.isFriendRequestSent = async function(toId){
@@ -283,5 +298,40 @@ User.hasMany(Question, {
     onUpdate: 'CASCADE',
     hooks: true
 });
+
+
+// User.belongsToMany(User, {
+//     through: FriendMap, 
+//     as: 'UserId1',
+//     foreignKey: 'id',
+//     sourceKey: 'UserId1'
+// });
+
+
+// User.belongsToMany(User, {
+//     through: FriendMap, 
+//     as: 'UserId2',
+//     foreignKey: 'id',
+//     sourceKey: 'UserId2'
+// });
+
+// console.log("User.js : ", User);
+
+// User.belongsToMany(User, {
+//     through: FriendMap,
+//     as: 'UserId1',  
+    // foreignKey: 'id'
+// });
+
+// User.belongsToMany(User, {
+//     through: FriendMap,
+//     as: 'UserId2',  
+    // foreignKey: 'id'
+// });
+
+// User.belongsToMany(User, {
+//     through: 'FriendMap',
+//     as: "UserId2"
+// })
 
 module.exports = User;

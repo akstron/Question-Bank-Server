@@ -4,14 +4,16 @@ const TagMap = require('../models/TagMap');
 const Tag = require('../models/Tag');
 const QuestionAccess = require('../models/QuestionAccess');
 const Notification = require('../models/Notification');
-const FriendMap = require('../models/FriendMap');
 const FriendRequest = require('../models/FriendRequest');
+const FriendMap = require('../models/FriendMap');
 
 Question.sync().then(() => {
     console.log('Question sync successfull');
 }).catch(e => console.log(e));
 
-User.sync().then(() => console.log('User sync successfull'))
+User.sync().then(() => {
+    console.log('User sync successfull')
+})
 .catch(e => console.log(e));
 
 TagMap.sync().then(() => 
@@ -32,8 +34,12 @@ Notification.sync().then(() => {
 
 FriendMap.sync().then(() => {
     console.log('FriendMap synced successfully');
-}).catch(e => console.log(e));
+}).catch(e => {
+    console.log('FriendMap: ', e);
+});
 
 FriendRequest.sync().then(() => {
     console.log('FriendRequest synced successfully');
-}).catch(e => console.log(e));
+}).catch(e => {
+    console.log('FriendRequest: ', e);
+});
