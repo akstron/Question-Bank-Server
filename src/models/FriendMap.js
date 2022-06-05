@@ -4,7 +4,7 @@ const User = require('./User');
 // console.log("FriendMap.js: ", User);
 
 /**
- * create table "FriendRequests"("UserId1" UUID NOT NULL references "Users"(id), "UserId2" UUID NOT NULL references "Users"(id));
+ * create table "FriendMaps"("UserId1" UUID NOT NULL references "Users"(id), "UserId2" UUID NOT NULL references "Users"(id));
  */
 
 const FriendMap = sequelize.define('FriendMap', {
