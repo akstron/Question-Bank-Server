@@ -1,6 +1,11 @@
+/**
+ * Middlewares related to user authentication
+ */
+
 const passport = require('passport');
-const { registerUser } = require('../utils/user');
+const { registerUser, createResponseUserObject } = require('../utils/user');
 const { handleError } = require('../utils/errorHandler');
+const { handleOtpVerification } = require('../utils/opt');
 
 module.exports.Register = async (req, res) => {
     try{
@@ -81,17 +86,27 @@ module.exports.Logout = (req, res) => {
 module.exports.Me = (req, res) => {
     try{
         const user = req.user;
-        const userObj = {
-            id: user.id,
-            username: user.username,
-            fullName: user.fullName,
-            email: user.email,
-            bio: user.bio
-        };
+        const userObj = createResponseUserObject(user);
 
         return res.json({
             status: true,
             user: userObj
+        });
+    } catch(e){
+        return handleError(e, res);
+    }
+}
+
+/**
+ * Middleware to handle email verification
+ */
+module.exports.Verify = async (req, res) => {
+    try{
+        const {otp} = req.body;
+        await handleOtpVerification(req.user, otp);
+        return res.json({
+            status: true,
+            message: 'User verified successfully'
         });
     } catch(e){
         return handleError(e, res);

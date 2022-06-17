@@ -6,6 +6,7 @@ const QuestionAccess = require('../models/QuestionAccess');
 const Notification = require('../models/Notification');
 const FriendRequest = require('../models/FriendRequest');
 const FriendMap = require('../models/FriendMap');
+const Opt = require('../models/Otp');
 
 Question.sync().then(() => {
     console.log('Question sync successfull');
@@ -43,3 +44,7 @@ FriendRequest.sync().then(() => {
 }).catch(e => {
     console.log('FriendRequest: ', e);
 });
+
+Opt.sync().then(() => {
+    console.log('Opt synced successfully');
+}).catch(e => console.log(e));

@@ -37,6 +37,11 @@ const User = sequelize.define('User', {
         set(password){
             this.setDataValue('password', bcrypt.hashSync(password, 8));
         }
+    }, 
+    isVerified: {
+        type: types.BOOLEAN, 
+        allowNull: false,
+        defaultValue: false
     }
 }, {
     timestamps: false
@@ -44,7 +49,7 @@ const User = sequelize.define('User', {
 
 User.register = async (userFields) => {
     const user = await User.create({
-        ...userFields
+        ...userFields, 
     })
 
     console.log(user);
@@ -245,25 +250,6 @@ u."fullName" LIKE :prefixFullName LIMIT :limit OFFSET :offset;`, {
     });
 }
 
-/**
- * REMOVING AS METHOD ALREADY EXIST IN FriendMap
- */
-/*
-User.prototype.isFriend = async function (otherUserId) {
-    const currentUserId = this.id;
-    const is = await sequelize.query(`SELECT "UserId1" AS friendId from "FriendMaps" WHERE "UserId2" = :currentUserId \
-AND "UserId1" = :otherUserId \
-UNION SELECT "UserId2" AS friendId from "FriendMaps" WHERE "UserId1" = :currentUserId \
-AND "UserId2" = :otherUserId`, {
-    replacements: {currentUserId, otherUserId}, 
-    type: QueryTypes.SELECT
-});
-
-    console.log(is);
-    return (is.length !== 0);
-}
-*/
-
 User.findByPrefixTexts = async (prefixFullName = '', prefixUsername = '', prefixEmail = '', offset = 0, limit = 5) => {
     prefixEmail += '%';
     prefixFullName += '%';
@@ -298,40 +284,5 @@ User.hasMany(Question, {
     onUpdate: 'CASCADE',
     hooks: true
 });
-
-
-// User.belongsToMany(User, {
-//     through: FriendMap, 
-//     as: 'UserId1',
-//     foreignKey: 'id',
-//     sourceKey: 'UserId1'
-// });
-
-
-// User.belongsToMany(User, {
-//     through: FriendMap, 
-//     as: 'UserId2',
-//     foreignKey: 'id',
-//     sourceKey: 'UserId2'
-// });
-
-// console.log("User.js : ", User);
-
-// User.belongsToMany(User, {
-//     through: FriendMap,
-//     as: 'UserId1',  
-    // foreignKey: 'id'
-// });
-
-// User.belongsToMany(User, {
-//     through: FriendMap,
-//     as: 'UserId2',  
-    // foreignKey: 'id'
-// });
-
-// User.belongsToMany(User, {
-//     through: 'FriendMap',
-//     as: "UserId2"
-// })
 
 module.exports = User;

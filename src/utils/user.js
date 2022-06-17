@@ -1,6 +1,8 @@
 const FriendMap = require("../models/FriendMap");
+const Otp = require("../models/Otp");
 const User = require("../models/User");
 const {ClientError} = require('../utils/errorHandler');
+const { handleOtp } = require("./opt");
 const { createResponseQuestionObject } = require("./question");
 const { isUUIDv4 } = require("./validator");
 
@@ -63,8 +65,16 @@ module.exports.registerUser = async (user) => {
 
     const userWithEmail = await User.findByEmail(email);
 
-    if(userWithEmail){
+    if(userWithEmail && userWithEmail.isVerified){
         throw new ClientError('Email already registered');
+    }
+
+    /**
+     * If user is found unverified, delete the user and create new user
+     */
+    if(userWithEmail){
+        /*This will also destrop otp automatically due to cascade */
+        await userWithEmail.destroy();
     }
 
     const userWithUsername = await User.findByUsername(username);
@@ -72,15 +82,10 @@ module.exports.registerUser = async (user) => {
     if(userWithUsername){
         throw new ClientError('Username already exists');
     }
-
+    
     const registeredUser = await User.register(user);
-    const registerdUserObj = {
-        username: registeredUser.username,
-        fullName: registeredUser.fullName,
-        email: registeredUser.email,
-        id: registeredUser.id,
-        bio: registeredUser.bio
-    }
+    await handleOtp(registeredUser);
+    const registerdUserObj = this.createResponseUserObject(registeredUser);
     return registerdUserObj;
 }
 
@@ -248,13 +253,9 @@ module.exports.getUsers = async (prefixFullName, prefixUsername, prefixEmail, of
 }
 
 module.exports.getFriendshipStatus = async (currentUser, otherUser) => {
-    // Not tested
     const isFriend = await FriendMap.isFriend(currentUser.id, otherUser.id);
     if(isFriend) return 'friend';
-    
-    /**
-     * TODO: OPTIMIZE THIS LATER
-     */
+
     const requestFromCurrentToOther = await currentUser.isFriendRequestSent(otherUser.id);
     if(requestFromCurrentToOther){
         return 'friend request sent';
